@@ -14,6 +14,12 @@ A small web app that hosts simple browser games. Plain HTML, CSS and JavaScript 
 
 Best scores are saved per browser in `localStorage`.
 
+## Play online (GitHub Pages)
+
+The workflow in `.github/workflows/pages.yml` publishes `public/` to GitHub Pages on every push.
+One-time setup: repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+The site is then at `https://<user>.github.io/<repo>/`.
+
 ## Run locally
 
 ```bash
