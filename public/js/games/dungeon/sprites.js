@@ -1,5 +1,6 @@
 // Pixel-art sprites, defined as text maps and baked into small canvases.
 // Each character in a map is one pixel; '.' is transparent.
+import { ART_PALETTE, HERO_FRAMES, HERO_HAND, BRAM_ROWS, PATRON_ROWS } from './art.js';
 
 export function bake(rows, palette, flip = false) {
   const h = rows.length;
@@ -34,362 +35,34 @@ export function silhouette(img) {
   return c;
 }
 
-// ---------- Hero (34x40, side view, facing right) ----------
-// Heroic proportions and a wide, low fighting stance: shield raised behind him,
-// scarf trailing back, sword held low and ready. Frames were built with a small
-// shape-based drawing script (limbs, torso, cape, shield) and auto-outlined.
-
-const HERO_PAL = {
-  k: '#1a1020', // outline
-  h: '#5a2e18', // hair
-  H: '#83492a', // hair highlight
-  s: '#f0c090', // skin
-  S: '#c88f60', // skin shade
-  e: '#1a1020', // eye
-  r: '#c8322a', // scarf
-  R: '#8a1e1e', // scarf shade
-  b: '#2f4f9a', // tunic
-  B: '#213670', // tunic shade
-  w: '#eef2f8', // steel highlight
-  m: '#c2cad8', // steel
-  M: '#7f879c', // steel shade
-  l: '#6b4423', // leather strap / belt
-  L: '#4a2e18', // leather shade
-  g: '#e8b84a', // buckle
-  x: '#b83030', // shield
-  X: '#7a1e1e', // shield shade
-  p: '#2a2440', // trousers
-  P: '#1c1830', // trousers shade
-  o: '#7a4a26', // boots
-  O: '#4a2e18', // boot shade
-};
-
-const HERO_FRAMES = {
-  stand: [
-    '..................................',
-    '...............kkkkkkk............',
-    '..............khhkHHHk............',
-    '.............khhkhhsssk...........',
-    '............khhhkhhshhk...........',
-    '............khhkhhSssek...........',
-    '............kkkkhhSsssk...........',
-    '...............khhSsssk...........',
-    '................khSssk............',
-    '..............kkkkkkkk............',
-    '.........k..kkRRrrrrrk............',
-    '.......kkmkkrrkkRRRkkkk...........',
-    '......kmXwkrrkBbkkkwwwmk..........',
-    '......kXXkrrkBlbbbkmmmmk..........',
-    '.....kXXXkkkkBBlbbkkkkkk..........',
-    '.....kXXXwxxkBBblbbkBkkk..........',
-    '.....kwwwwwwkBBbblbbkkllk.........',
-    '.....kmmmmmmkBBbbblbkklllk........',
-    '.....kXXXmxxkBBbbbblk.kllk........',
-    '.....kXXXmxxxkBbbbbkl.kLkkk.......',
-    '......kXXmxxkkkkkkkkkl.kksk.......',
-    '......kMXmxMkBBbbbbbk...kkk.......',
-    '......kkkMkkBBBbbbbbbk............',
-    '......kRRkRkBBBbbbbbbk............',
-    '......kRRkkkBBBbbbbbbk............',
-    '.....kkkkkkkkkBbbkkkbbk...........',
-    '.....k...kkPPPkbkPPpkkkk..........',
-    '........kPPPPPkk.kPPppppk.........',
-    '.......kkkkkPPk...kPpkkkkk........',
-    '.......kkMMkPk.....kPkmmkk........',
-    '.......kMMMkk.......kkmmkk........',
-    '......kPPMMkk.......kkmmmk........',
-    '......kPPPkk.........kPppk........',
-    '.....kPPPPk..........kPppk........',
-    '....kkkkkk...........kkkkkk.......',
-    '....kOOOOk...........kOoook.......',
-    '....kOOOOk...........kOoook.......',
-    '....kOOOOOkkk........kOooookkk....',
-    '....kOOOOOOOk........kOooooook....',
-    '....kkkkkkkkk........kkkkkkkkk....',
-  ],
-  walk1: [
-    '..................................',
-    '...............kkkkkkk............',
-    '..............khhkHHHk............',
-    '.............khhkhhsssk...........',
-    '............khhhkhhshhk...........',
-    '............khhkhhSssek...........',
-    '............kkkkhhSsssk...........',
-    '...............khhSsssk...........',
-    '................khSssk............',
-    '..............kkkkkkkk............',
-    '.........k..kkRRrrrrrk............',
-    '.......kkmkkrrkkRRRkkkk...........',
-    '......kmXwkrrkBbkkkwwwmk..........',
-    '......kXXkrrkBlbbbkmmmmk..........',
-    '.....kXXXkkkkBBlbbkkkkkk..........',
-    '.....kXXXwxxkBBblbbkBkkk..........',
-    '.....kwwwwwwkBBbblbbkkllk.........',
-    '.....kmmmmmmkBBbbblbkklllk........',
-    '.....kXXXmxxkBBbbbblk.kllk........',
-    '.....kXXXmxxxkBbbbbkl.kLkkk.......',
-    '......kXXmxxkkkkkkkkkl.kksk.......',
-    '......kMXmxMkBBbbbbbk...kkk.......',
-    '......kkkMkkBBBbbbbbbk............',
-    '......kRRkRkBBBbbbbbbk............',
-    '......kRRkkkBBBbbbbbbk............',
-    '.....kkkk.kkkkBbbkkkbbk...........',
-    '.....k....kPPPkbkPppkkk...........',
-    '..........kPPPPk.kPkkkkk..........',
-    '.........kkkkkPk.kPkmmkk..........',
-    '.........kkMMkk...kkmmmk..........',
-    '.........kMMMkk...kkmmmk..........',
-    '........kPPMMkk....kPppk..........',
-    '........kPPPkk......kPppk.........',
-    '.......kPPPPk.......kPppk.........',
-    '......kkkkkk........kkkkkk........',
-    '......kOOOOk........kOoook........',
-    '......kOOOOk........kOoook........',
-    '......kOOOOOkkk.....kOooookkk.....',
-    '......kOOOOOOOk.....kOooooook.....',
-    '......kkkkkkkkk.....kkkkkkkkk.....',
-  ],
-  walk2: [
-    '..................................',
-    '..................................',
-    '...............kkkkkkk............',
-    '..............khhkHHHk............',
-    '.............khhkhhsssk...........',
-    '............khhhkhhshhk...........',
-    '............khhkhhSssek...........',
-    '............kkkkhhSsssk...........',
-    '...............khhSsssk...........',
-    '................khSssk............',
-    '..............kkkkkkkk............',
-    '.........k..kkRRrrrrrk............',
-    '.......kkmkkrrkkRRRkkkk...........',
-    '......kmXwkrrkBbkkkwwwmk..........',
-    '......kXXkrrkBlbbbkmmmmk..........',
-    '.....kXXXkkkkBBlbbkkkkkk..........',
-    '.....kXXXwxxkBBblbbkBkkk..........',
-    '.....kwwwwwwkBBbblbbkkllk.........',
-    '.....kmmmmmmkBBbbblbkklllk........',
-    '.....kXXXmxxkBBbbbblk.kllk........',
-    '.....kXXXmxxxkBbbbbkl.kLkkk.......',
-    '......kXXmxxkkkkkkkkkl.kksk.......',
-    '......kMXmxMkBBbbbbbk...kkk.......',
-    '......kkkMkkBBBbbbbbbk............',
-    '......kRRkRkBBBbbbbbbk............',
-    '......kRRkkkBBBbbbbbbk............',
-    '.....kkkk.kkkkBbbkkkbbk...........',
-    '.....k....kkPPkbkpppkkk...........',
-    '............kkkkkkkkk.............',
-    '............kkMkkmmkk.............',
-    '............kMMkkmmkk.............',
-    '...........kPPMkkmmkk.............',
-    '..........kkkkkkkppk..............',
-    '..........kOoookkppk..............',
-    '..........kOoookkkkkk.............',
-    '..........kOoookOoook.............',
-    '..........kkkkkkOoook.............',
-    '...............kOooookkk..........',
-    '...............kOooooook..........',
-    '...............kkkkkkkkk..........',
-  ],
-  walk3: [
-    '..................................',
-    '...............kkkkkkk............',
-    '..............khhkHHHk............',
-    '.............khhkhhsssk...........',
-    '............khhhkhhshhk...........',
-    '............khhkhhSssek...........',
-    '............kkkkhhSsssk...........',
-    '...............khhSsssk...........',
-    '................khSssk............',
-    '..............kkkkkkkk............',
-    '.........k..kkRRrrrrrk............',
-    '.......kkmkkrrkkRRRkkkk...........',
-    '......kmXwkrrkBbkkkwwwmk..........',
-    '......kXXkrrkBlbbbkmmmmk..........',
-    '.....kXXXkkkkBBlbbkkkkkk..........',
-    '.....kXXXwxxkBBblbbkBkkk..........',
-    '.....kwwwwwwkBBbblbbkkllk.........',
-    '.....kmmmmmmkBBbbblbkklllk........',
-    '.....kXXXmxxkBBbbbblk.kllk........',
-    '.....kXXXmxxxkBbbbbkl.kLkkk.......',
-    '......kXXmxxkkkkkkkkkl.kksk.......',
-    '......kMXmxMkBBbbbbbk...kkk.......',
-    '......kkkMkkBBBbbbbbbk............',
-    '......kRRkRkBBBbbbbbbk............',
-    '......kRRkkkBBBbbbbbbk............',
-    '.....kkkk.kkkkBbbkkkbbk...........',
-    '.....k....k.kkkbkppkkkk...........',
-    '............kPPkppkPk.............',
-    '...........kkkkkppkkkk............',
-    '...........kkmmkpkMMkk............',
-    '...........kmmmkkkMMMk............',
-    '..........kPpmmkkkMMMk............',
-    '..........kPppkk.kkPPk............',
-    '.........kPpppk...kPPPk...........',
-    '........kkkkkk....kkkkkk..........',
-    '........kOoook....kOOOOk..........',
-    '........kOoook....kOOOOk..........',
-    '........kOooookkk.kOOOOOkkk.......',
-    '........kOooooook.kOOOOOOOk.......',
-    '........kkkkkkkkk.kkkkkkkkk.......',
-  ],
-  walk4: [
-    '..................................',
-    '..................................',
-    '...............kkkkkkk............',
-    '..............khhkHHHk............',
-    '.............khhkhhsssk...........',
-    '............khhhkhhshhk...........',
-    '............khhkhhSssek...........',
-    '............kkkkhhSsssk...........',
-    '...............khhSsssk...........',
-    '................khSssk............',
-    '..............kkkkkkkk............',
-    '.........k..kkRRrrrrrk............',
-    '.......kkmkkrrkkRRRkkkk...........',
-    '......kmXwkrrkBbkkkwwwmk..........',
-    '......kXXkrrkBlbbbkmmmmk..........',
-    '.....kXXXkkkkBBlbbkkkkkk..........',
-    '.....kXXXwxxkBBblbbkBkkk..........',
-    '.....kwwwwwwkBBbblbbkkllk.........',
-    '.....kmmmmmmkBBbbblbkklllk........',
-    '.....kXXXmxxkBBbbbblk.kllk........',
-    '.....kXXXmxxxkBbbbbkl.kLkkk.......',
-    '......kXXmxxkkkkkkkkkl.kksk.......',
-    '......kMXmxMkBBbbbbbk...kkk.......',
-    '......kkkMkkBBBbbbbbbk............',
-    '......kRRkRkBBBbbbbbbk............',
-    '......kRRkkkBBBbbbbbbk............',
-    '.....kkkk.kkkkBbbkkkbbk...........',
-    '.....k....kkPPkbkkkkkkk...........',
-    '............kkkkkkmmkk............',
-    '............kkMMkmmmkk............',
-    '............kkMMkPmmkk............',
-    '............kkMkPppkk.............',
-    '.............kkkkkkk..............',
-    '.............kkOoook..............',
-    '............kkkOooookk............',
-    '............kOkOoooook............',
-    '............kOkkkkkkkk............',
-    '............kOOOOOkkk.............',
-    '............kOOOOOOOk.............',
-    '............kkkkkkkkk.............',
-  ],
-  jump: [
-    '..................................',
-    '...............kkkkkkk............',
-    '..............khhkHHHk............',
-    '.............khhkhhsssk...........',
-    '............khhhkhhshhk...........',
-    '............khhkhhSssek...........',
-    '............kkkkhhSsssk...........',
-    '...............khhSsssk...........',
-    '................khSssk............',
-    '..............kkkkkkkk............',
-    '.........k..kkRRrrrrrk............',
-    '.......kkmkkrrkkRRRkkkk...........',
-    '......kmXwkrrkBbkkkwwwmk..........',
-    '......kXXkrrkBlbbbkmmmmk..........',
-    '.....kXXXkkkkBBlbbkkkkkk..........',
-    '.....kXXXwxxkBBblbbkBkkkk.........',
-    '.....kwwwwwwkBBbblbbkklllk........',
-    '.....kmmmmmmkBBbbblbkkllkkk.......',
-    '.....kXXXmxxkBBbbbblk.kkksk.......',
-    '.....kXXXmxxxkBbbbbkl...kkk.......',
-    '......kXXmxxkkkkkkkkkl............',
-    '......kMXmxMkBBbbbbbk.............',
-    '......kkkMkkBBBbbbbbbk............',
-    '......kRRkRkBBBbbbbbbk............',
-    '......kRRkkkBBBbbbbbbkkk..........',
-    '.....kkkkkkkkkBbbkkkbbkkk.........',
-    '.....k..kkkkkPkbkkPpkkkkk.........',
-    '........kkMMkPkk..kkmmmkk.........',
-    '........kkMMkk.....kPmmkk.........',
-    '........kkMMkk.....kppkk..........',
-    '.........kPPk.....kPppk...........',
-    '........kkkkkk...kkkkkk...........',
-    '........kOoook...kOoook...........',
-    '........kOooookk.kOooookk.........',
-    '........kOoooook.kOoooook.........',
-    '........kkkkkkkk.kkkkkkkk.........',
-    '..................................',
-    '..................................',
-    '..................................',
-    '..................................',
-  ],
-};
+// ---------- Hero, Bram and the patron ----------
+// Drawn by tools/sprite_tool.py (posed shapes, shading, outlines) into art.js.
 
 function heroSet(flip) {
-  const make = (name) => bake(HERO_FRAMES[name], HERO_PAL, flip);
+  const make = (name) => bake(HERO_FRAMES[name], ART_PALETTE, flip);
   const stand = make('stand');
   return {
     stand,
     walk: [make('walk1'), make('walk2'), make('walk3'), make('walk4')],
     walkBob: [0, 1, 0, 1], // body dips on the passing steps
     jump: make('jump'),
+    attack: make('attack'), // no sword arm: the game draws the arm swinging
     flash: silhouette(stand),
   };
 }
 
 export const HERO = {
-  w: 34,
-  h: 40,
-  hand: { x: 25, y: 20 }, // sword hand, facing right
+  w: HERO_FRAMES.stand[0].length,
+  h: HERO_FRAMES.stand.length,
+  hand: HERO_HAND, // sword hand (held low behind him), facing right
+  shoulder: { x: 18, y: 16 }, // sword-arm shoulder, facing right
   right: heroSet(false),
   left: heroSet(true),
 };
 
-// ---------- Bram the barkeep (20x26, facing the viewer) ----------
-
-const PEOPLE_PAL = {
-  k: '#1a1020',
-  s: '#f0c090',
-  S: '#c88f60',
-  e: '#1a1020',
-  m: '#8a5a2b', // mustache
-  r: '#a83232', // shirt
-  a: '#e8e0d0', // apron
-  p: '#3a2a40',
-  o: '#4a2e18',
-  g: '#3f7a3a', // hood
-  n: '#7a5230', // brown cloth
-};
-
-const BRAM_ROWS = [
-  '......kkkkkkkk......',
-  '.....kssssssssk.....',
-  '....kssssssssssk....',
-  '....kssssssssssk....',
-  '...kSssesssssessSk..',
-  '...kSsssssssssssSk..',
-  '...kSsmmmmmmmmmsSk..',
-  '...kSmmmmsssmmmmSk..',
-  '....kSmmsssssmmSk...',
-  '.....kkSsssssSkk....',
-  '....krrrrrrrrrrrrk..',
-  '...krrraaaaaaaarrrk.',
-  '..kssraaaaaaaaarssk.',
-  '..kssraaaaaaaaarssk.',
-  '..kssraaaaaaaaarssk.',
-  '...krraaaaaaaaarrk..',
-  '....kaaaaaaaaaaak...',
-  '....kaaaaaaaaaaak...',
-  '....kaaaaaaaaaaak...',
-  '....kpppppppppppk...',
-  '....kppppk.kppppk...',
-  '....kppppk.kppppk...',
-  '....kppppk.kppppk...',
-  '....kppppk.kppppk...',
-  '....kooook.kooook...',
-  '....kkkkkk.kkkkkk...',
-];
-export const BRAM = bake(BRAM_ROWS, PEOPLE_PAL);
-
-// Sleeping patron: same build, green hood, brown clothes, eyes shut.
-export const PATRON = bake(
-  BRAM_ROWS.map((row, y) => (y < 4 ? row.replace(/s/g, 'g') : row.replace(/e/g, 'S'))),
-  { ...PEOPLE_PAL, r: PEOPLE_PAL.g, a: PEOPLE_PAL.n },
-);
+// Bram faces left, toward customers coming in the front door.
+export const BRAM = bake(BRAM_ROWS, ART_PALETTE, true);
+export const PATRON = bake(PATRON_ROWS, ART_PALETTE);
 
 // ---------- Enemies ----------
 

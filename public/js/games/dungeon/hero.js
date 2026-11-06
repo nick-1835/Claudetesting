@@ -14,7 +14,7 @@ export function createHero(x, y) {
     vx: 0,
     vy: 0,
     hw: 7,
-    hh: 35,
+    hh: 45,
     face: 'right',
     walk: 0,
     moving: false,
@@ -58,9 +58,9 @@ export function createHero(x, y) {
     /** Area the sword hits during the active part of a swing, or null. */
     get hitBox() {
       const s = hero.swing;
-      if (s < 0.2 || s > 0.7) return null;
+      if (s < 0.3 || s > 0.75) return null;
       const dir = hero.face === 'right' ? 1 : -1;
-      return { x: hero.x + dir * 22, y: hero.y - 2, hw: 22, hh: 38 };
+      return { x: hero.x + dir * 22, y: hero.y - 2, hw: 24, hh: 48 };
     },
     /** Take a hit from something at `fromX`. Returns false while still invulnerable. */
     hurt(fromX) {
@@ -112,59 +112,89 @@ function drawSword(ctx, hx, hy, angle, dirSign) {
   ctx.fillRect(Math.round(hx - c * 3), Math.round(hy - s * 3), 1, 1);
 }
 
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = (t) => t * t * (3 - 2 * t);
+const REST_ANGLE = 2.45; // sword held low, pointing back and down
+
+// Sword-hand path through a swing (in sprite pixels, facing right) and blade angle.
+function swingPose(s) {
+  const rest = { x: 12, y: 26 }, raised = { x: 15, y: 9 }, struck = { x: 31, y: 22 };
+  if (s < 0.25) { const t = ease(s / 0.25); return { hand: { x: lerp(rest.x, raised.x, t), y: lerp(rest.y, raised.y, t) }, angle: lerp(REST_ANGLE, 3.98, t), front: false }; }
+  if (s < 0.6) { const t = ease((s - 0.25) / 0.35); return { hand: { x: lerp(raised.x, struck.x, t), y: lerp(raised.y, struck.y, t) }, angle: lerp(3.98, 6.98, t), front: true }; }
+  const t = ease((s - 0.6) / 0.4);
+  return { hand: { x: lerp(struck.x, rest.x, t), y: lerp(struck.y, rest.y, t) }, angle: lerp(6.98, REST_ANGLE + Math.PI * 2, t), front: t < 0.5 };
+}
+
+// Chunky pixel arm from shoulder to hand: outline, sleeve, then glove.
+function drawArm(ctx, x0, y0, x1, y1) {
+  const steps = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0)));
+  for (const [color, r] of [['#140c18', 2], ['#213670', 1]]) {
+    ctx.fillStyle = color;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      if (color !== '#140c18' && t > 0.55) ctx.fillStyle = '#7a4e2a'; // leather bracer
+      ctx.fillRect(Math.round(lerp(x0, x1, t)) - r, Math.round(lerp(y0, y1, t)) - r, r * 2 + 1, r * 2 + 1);
+    }
+  }
+}
+
 export function drawHero(ctx, hero, time) {
   if (hero.hurtT > 0 && Math.floor(hero.hurtT * 14) % 2 === 0 && !hero.dead) return; // blink
   const set = HERO[hero.face];
-  let img = set.stand;
-  let bob = 0;
-  if (!hero.onGround) img = set.jump;
-  else if (hero.moving && hero.knockT <= 0) {
-    const i = Math.floor(hero.walk) % 4;
-    img = set.walk[i];
-    bob = set.walkBob[i];
-  }
+  const dirSign = hero.face === 'right' ? 1 : -1;
   const sx = Math.round(hero.x - HERO.w / 2);
   const sy = Math.round(hero.y - HERO.h);
-  const dirSign = hero.face === 'right' ? 1 : -1;
-  const hx = sx + (dirSign > 0 ? HERO.hand.x : HERO.w - 1 - HERO.hand.x) + 0.5;
-  const hy = sy + HERO.hand.y + bob + (img === set.jump ? -2 : 0) + 0.5;
+  const px = (lx) => sx + (dirSign > 0 ? lx : HERO.w - 1 - lx) + 0.5;
 
   if (hero.dead) {
     ctx.save();
     ctx.translate(hero.x, hero.y);
     ctx.rotate(dirSign * -Math.PI / 2);
-    ctx.drawImage(set.stand, -HERO.w / 2, -HERO.h + 4);
+    ctx.drawImage(set.stand, -HERO.w / 2, -HERO.h + 6);
     ctx.restore();
     return;
   }
 
-  // Sword angle: held low and forward at rest, or windup -> slash -> follow-through.
   const s = hero.swing;
-  let angle = 0.38;
-  if (s >= 0) {
-    if (s < 0.2) angle = 0.38 - (s / 0.2) * 2.6;
-    else if (s < 0.55) angle = -2.2 + ((s - 0.2) / 0.35) * 3.1;
-    else angle = 0.9 - ((s - 0.55) / 0.45) * 0.52;
+  if (s < 0) {
+    // Guard stance: sword low behind him, shield forward.
+    let img = set.stand;
+    let bob = 0;
+    if (!hero.onGround) img = set.jump;
+    else if (hero.moving && hero.knockT <= 0) {
+      const i = Math.floor(hero.walk) % 4;
+      img = set.walk[i];
+      bob = set.walkBob[i];
+    }
+    const hy = sy + HERO.hand.y + bob + (img === set.jump ? -2 : 0) + 0.5;
+    drawSword(ctx, px(HERO.hand.x), hy, REST_ANGLE, dirSign);
+    ctx.drawImage(img, sx, sy);
+    return;
   }
-  const behind = s >= 0 && s < 0.2;
-  if (behind) drawSword(ctx, hx, hy, angle, dirSign);
-  ctx.drawImage(img, sx, sy);
-  if (!behind) drawSword(ctx, hx, hy, angle, dirSign);
+
+  // Attacking: body without the sword arm, then the arm + sword drawn swinging.
+  const pose = swingPose(s);
+  const hx = px(pose.hand.x), hy = sy + pose.hand.y + 0.5;
+  const shx = px(HERO.shoulder.x), shy = sy + HERO.shoulder.y + 0.5;
+  if (!pose.front) { drawSword(ctx, hx, hy, pose.angle, dirSign); drawArm(ctx, shx, shy, hx, hy); }
+  ctx.drawImage(set.attack, sx, sy);
+  if (pose.front) { drawArm(ctx, shx, shy, hx, hy); drawSword(ctx, hx, hy, pose.angle, dirSign); }
 
   // Slash trail.
-  if (s >= 0.2 && s < 0.7) {
-    const alpha = 1 - (s - 0.2) / 0.5;
+  if (s >= 0.3 && s < 0.75) {
+    const alpha = 1 - (s - 0.3) / 0.45;
+    const cx = px(20), cy = sy + 20;
     ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    if (dirSign > 0) ctx.arc(hx, hy, 23, -2.0, 0.8);
-    else ctx.arc(hx, hy, 23, Math.PI - 0.8, Math.PI + 2.0);
+    if (dirSign > 0) ctx.arc(cx, cy, 27, -1.9, 0.9);
+    else ctx.arc(cx, cy, 27, Math.PI - 0.9, Math.PI + 1.9);
     ctx.stroke();
     ctx.strokeStyle = `rgba(160, 210, 255, ${alpha * 0.5})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    if (dirSign > 0) ctx.arc(hx, hy, 18, -1.8, 0.7);
-    else ctx.arc(hx, hy, 18, Math.PI - 0.7, Math.PI + 1.8);
+    if (dirSign > 0) ctx.arc(cx, cy, 22, -1.7, 0.8);
+    else ctx.arc(cx, cy, 22, Math.PI - 0.8, Math.PI + 1.7);
     ctx.stroke();
   }
 }

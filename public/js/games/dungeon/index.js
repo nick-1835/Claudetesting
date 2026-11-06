@@ -50,7 +50,8 @@ export default {
     const keys = trackKeys((key) => {
       if (key === 'Escape' || key === 'p' || key === 'P') { togglePause(); return; }
       if (key === 'e' || key === 'E' || key === 'Enter') action('interact');
-      else if (key === 'j' || key === 'J' || key === 'x' || key === 'X' || key === 'k' || key === 'K') action('attack');
+      else if (key === 'j' || key === 'J' || key === 'x' || key === 'X') action('attack');
+      else if (key === 'k' || key === 'K') action('interact');
       else if (key === ' ' || key === 'w' || key === 'W' || key === 'ArrowUp') action(ui.busy ? 'interact' : 'jump');
       else if (key === 'ArrowLeft' || key === 'a' || key === 'A') action('left');
       else if (key === 'ArrowRight' || key === 'd' || key === 'D') action('right');
@@ -126,7 +127,7 @@ export default {
         button('Resume', 'dq-btn', (e) => { e.stopPropagation(); togglePause(); }),
         button('Restart chapter', 'dq-btn alt', (e) => { e.stopPropagation(); paused = false; game.player = newPlayer(); game.goto('tavern'); }),
         button('Exit to arcade', 'dq-btn alt', (e) => { e.stopPropagation(); game.exit(); }),
-        el('dq-note', coarse ? '' : 'Keys: A/D move · W or Space jump · J attack · E interact · Esc pause'),
+        el('dq-note', coarse ? '' : 'Keys: A/D move · J attack · K or Space jump / use · E use · Esc pause'),
       ]);
     }
 

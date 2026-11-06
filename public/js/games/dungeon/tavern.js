@@ -247,12 +247,8 @@ export function createTavern(game, opts = {}) {
     hero.face = 'right';
     if (!quest) {
       ui.say([
-        { name: 'Bram', text: 'Well now, a knight in my humble tavern? Pull up a stool, friend.' },
-        { name: 'Bram', text: "I'll be straight with you. Something's crawled up from the old cellar beneath this place." },
-        { name: 'Bram', text: 'My barrels go missing, the rats have all fled... and at night I hear scratching. Growling.' },
-        { name: 'Bram', text: 'The cellar opens into tunnels — ruins far older than this town. Room after room of them.' },
-        { name: 'Bram', text: "Clear them out, room by room. Every last creature. Do that and there's 100 gold in it for you." },
-        { name: 'Bram', text: "Here — my old cellar key. The door's at the far end, past the window. Mind the steps." },
+        { name: 'Bram', text: 'A knight! Good. Monsters have crawled up out of my cellar.' },
+        { name: 'Bram', text: "Clear them out and 100 gold is yours. Here's the key — door's at the far end." },
       ], () => {
         quest = true;
         player.key = true;
@@ -262,9 +258,9 @@ export function createTavern(game, opts = {}) {
       });
     } else {
       const lines = [
-        "Cellar door's at the far end. Go on, then — and don't let anything follow you up.",
-        "Drinks are on me when you're back. If you're back.",
-        "Still here? Those beasts won't clear themselves out.",
+        "Cellar door's at the far end.",
+        'Drinks are on me when you get back.',
+        "Still here? Go on, then.",
       ];
       ui.say([{ name: 'Bram', text: lines[bramTalks++ % lines.length] }]);
     }
@@ -273,9 +269,9 @@ export function createTavern(game, opts = {}) {
   function talkPatron() {
     hero.face = hero.x < 170 ? 'right' : 'left';
     const lines = [
-      "Zzz... mmh... don't go in the cellar... the eyes... zzz...",
-      '*snore* ...one more ale, Bram... *snore*',
-      'Zzz... they say the deepest room has a guardian... zzz...',
+      "Zzz... don't go in the cellar... zzz...",
+      '*snore* ...one more ale... *snore*',
+      'Zzz... the deepest room... has a guardian... zzz...',
     ];
     ui.say([{ name: 'Sleepy patron', text: lines[patronTalks++ % lines.length] }]);
   }
@@ -283,7 +279,7 @@ export function createTavern(game, opts = {}) {
   function useCellar() {
     hero.face = 'right';
     if (!quest) {
-      ui.say([{ text: 'A heavy iron-banded door, locked tight. Cold air seeps under it. Maybe the barkeep has a key.' }]);
+      ui.say([{ text: "Locked. Maybe the barkeep has a key." }]);
       return;
     }
     ui.choice('Descend into the cellar?', [
@@ -341,7 +337,7 @@ export function createTavern(game, opts = {}) {
         if (doorOpen >= 1) hero.step(dt, 0.6, world);
         if (hero.x >= 72) {
           state = 'narration';
-          ui.say([{ text: "The Rusty Flagon. A crackling fire, cheap ale, and a barkeep who looks like he's been expecting you." }], startPlay);
+          ui.say([{ text: 'The Rusty Flagon. The barkeep looks like he has a job for you.' }], startPlay);
         }
       } else {
         if (state === 'narration') doorOpen = Math.max(0, doorOpen - dt * 2);
@@ -398,7 +394,7 @@ export function createTavern(game, opts = {}) {
     ctx.fillRect(x - 5, y, 11, 9);
     ctx.fillRect(x, y + 9, 1, 2);
     ctx.fillStyle = '#c0392b';
-    const A = ['.###.', '#...#', '#####', '#...#', '#...#'];
+    const A = ['####.', '#...#', '####.', '#...#', '####.']; // "B" = use
     A.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 2 + rx, y + 2 + ry, 1, 1); }));
   }
 
@@ -463,18 +459,18 @@ export function createTavern(game, opts = {}) {
     }
 
     // Bram behind the bar, polishing a mug.
-    const bramX = 306, bramY = 113 + (Math.sin(time * 2) > 0.95 ? -1 : 0);
+    const bramX = 302, bramY = 102 + (Math.sin(time * 2) > 0.95 ? -1 : 0);
     ctx.drawImage(BRAM, bramX, bramY);
     const polish = Math.round(Math.sin(time * 5) * 3);
+    ctx.fillStyle = '#140c18';
+    ctx.fillRect(bramX + 11 + polish, bramY + 19, 8, 8);
     ctx.fillStyle = '#c9c9c9';
-    ctx.fillRect(bramX + 7 + polish, bramY + 11, 6, 6);
+    ctx.fillRect(bramX + 12 + polish, bramY + 20, 6, 6);
     ctx.fillStyle = '#f5e6b0';
-    ctx.fillRect(bramX + 7 + polish, bramY + 11, 6, 1);
-    ctx.fillStyle = '#f0c090';
-    ctx.fillRect(bramX + 5 + polish, bramY + 15, 10, 2);
+    ctx.fillRect(bramX + 12 + polish, bramY + 20, 6, 1);
 
     // Sleeping patron slumped at his table.
-    ctx.drawImage(PATRON, 146, 122);
+    ctx.drawImage(PATRON, 142, 117);
 
     ctx.drawImage(mid, 0, 0);
     for (const t of CANDLES) flame(ctx, t.x, 129);
@@ -493,7 +489,7 @@ export function createTavern(game, opts = {}) {
       ...CANDLES.map((c) => [c.x, 126, 38 + Math.sin(time * 11 + c.x) * 2]),
       [70, 68, 18], [116, 68, 18],
       [462, 64, 40],
-      [hero.x, hero.y - 20, 40],
+      [hero.x, hero.y - 24, 44],
     ];
     if (quest) lights.push([520, 124, 30 * cellarOpen + Math.sin(time * 3) * 2]);
     for (const [x, y, r] of lights) {
@@ -529,10 +525,10 @@ export function createTavern(game, opts = {}) {
     // Markers: quest "!" over Bram, "A" bubble over whatever you can use.
     if (state === 'play' || state === 'narration') {
       const n = state === 'play' && !ui.busy ? near() : null;
-      if (n === 'bram') bubble(ctx, 316, 96, 'A');
-      else if (!quest) bubble(ctx, 316, 96, '!');
-      if (n === 'patron') bubble(ctx, 156, 104, 'A');
-      if (n === 'cellar') bubble(ctx, 520, 78, 'A');
+      if (n === 'bram') bubble(ctx, 317, 86, 'A');
+      else if (!quest) bubble(ctx, 317, 86, '!');
+      if (n === 'patron') bubble(ctx, 158, 98, 'A');
+      if (n === 'cellar') bubble(ctx, 520, 74, 'A');
     }
     ctx.restore();
   }
@@ -550,14 +546,15 @@ export function createTavern(game, opts = {}) {
         if (time - pokeTime > 3 && (n === 'bram' || n === 'patron')) {
           pokeTime = time;
           ui.say([n === 'bram'
-            ? { name: 'Bram', text: 'Oi! Save the sword swinging for the cellar, not my tavern!' }
-            : { name: 'Sleepy patron', text: '*snort* ...five more minutes... zzz...' }]);
+            ? { name: 'Bram', text: 'Oi! Save that for the cellar!' }
+            : { name: 'Sleepy patron', text: '*snort* ...five more minutes...' }]);
         }
       } else if (name === 'interact') {
         const n = near();
         if (n === 'bram') talkBram();
         else if (n === 'patron') talkPatron();
         else if (n === 'cellar') useCellar();
+        else hero.jump(); // B is jump when there's nothing to use
       }
     },
     dispose() { input.setReady(false); },

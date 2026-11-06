@@ -1,4 +1,4 @@
-// On-screen controls: a joystick on the left, A (interact) and B (attack) on the right.
+// On-screen controls: a joystick on the left; A (attack) and B (jump / use) on the right.
 // Emits actions through `onAction(name)`: 'jump', 'interact', 'attack', 'left', 'right'.
 
 function div(cls, html) {
@@ -17,9 +17,9 @@ export function createControls(onAction) {
   zone.append(base);
 
   const pads = div('dq-pads');
-  const attack = div('dq-pad b', '<span>B</span><small>Attack</small>');
-  const interact = div('dq-pad a', '<span>A</span><small>Use</small>');
-  pads.append(attack, interact);
+  const interact = div('dq-pad b', '<span>B</span><small>Jump/Use</small>');
+  const attack = div('dq-pad a', '<span>A</span><small>Attack</small>');
+  pads.append(interact, attack);
   el.append(zone, pads);
 
   let x = 0, y = 0;
@@ -87,7 +87,7 @@ export function createControls(onAction) {
     el,
     get x() { return x; },
     get y() { return y; },
-    /** Make the A button pulse when there's something to interact with. */
+    /** Make the B button pulse when there's something to use nearby. */
     setReady(on) { interact.classList.toggle('ready', !!on); },
     reset: release,
   };

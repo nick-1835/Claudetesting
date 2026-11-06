@@ -625,11 +625,11 @@ body.immersive { background: #05030a; }
   transition: transform 0.05s;
 }
 .dq-pad span { font-size: clamp(16px, 4.5vmin, 22px); }
-.dq-pad small { font-size: 7px; margin-top: 4px; opacity: 0.85; }
-.dq-pad.b { background: radial-gradient(circle at 35% 30%, #e0584a, #a8301f 70%); }
-.dq-pad.a { background: radial-gradient(circle at 35% 30%, #59a7f0, #2a5fae 70%); margin-bottom: clamp(20px, 6vmin, 36px); }
+.dq-pad small { font-size: 6px; margin-top: 4px; opacity: 0.85; }
+.dq-pad.a { background: radial-gradient(circle at 35% 30%, #e0584a, #a8301f 70%); margin-bottom: clamp(20px, 6vmin, 36px); }
+.dq-pad.b { background: radial-gradient(circle at 35% 30%, #59a7f0, #2a5fae 70%); }
 .dq-pad.down { transform: translateY(3px) scale(0.95); box-shadow: 0 0 0 3px var(--ink), inset -2px -2px 0 rgba(0, 0, 0, 0.3); }
-.dq-pad.a.ready { animation: dq-ready 0.9s ease-in-out infinite; }
+.dq-pad.b.ready { animation: dq-ready 0.9s ease-in-out infinite; }
 @keyframes dq-ready { 50% { box-shadow: 0 0 0 3px var(--ink), 0 0 0 7px rgba(255, 224, 138, 0.7), 0 5px 0 2px rgba(0, 0, 0, 0.45); } }
 .dq-app.landscape .dq-stick { opacity: 0.6; }
 .dq-app.landscape .dq-stick.active { opacity: 0.85; }

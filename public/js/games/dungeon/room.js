@@ -285,7 +285,7 @@ export function createRoom(game) {
     // Touching the hero hurts.
     if (!hero.dead && overlap(e, hero) && hero.hurt(e.x)) {
       player.hp = Math.max(0, player.hp - e.def.damage);
-      popup(hero.x, hero.y - 44, `-${e.def.damage}`, '#ff6b5e');
+      popup(hero.x, hero.y - 54, `-${e.def.damage}`, '#ff6b5e');
       shake = 0.25;
       game.syncHud();
       if (player.hp <= 0) die();
@@ -303,7 +303,7 @@ export function createRoom(game) {
       c.age += dt;
       moveBody(c, dt, world);
       if (c.onGround) c.vx *= 0.85;
-      if (c.age > 0.3 && Math.abs(c.x - hero.x) < 12 && c.y > hero.y - 40 && c.y < hero.y + 4 && !hero.dead) {
+      if (c.age > 0.3 && Math.abs(c.x - hero.x) < 12 && c.y > hero.y - 48 && c.y < hero.y + 4 && !hero.dead) {
         coins.splice(coins.indexOf(c), 1);
         player.gold += 1;
         popup(c.x, c.y - 8, '+1', '#ffe08a');
@@ -383,7 +383,7 @@ export function createRoom(game) {
     ctx.fillStyle = '#f3e6c8';
     ctx.fillRect(x - 5, y, 11, 9);
     ctx.fillStyle = '#c0392b';
-    ['.###.', '#...#', '#####', '#...#', '#...#'].forEach((row, ry) =>
+    ['####.', '#...#', '####.', '#...#', '####.'].forEach((row, ry) =>
       [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 2 + rx, y + 2 + ry, 1, 1); }));
   }
 
@@ -445,7 +445,7 @@ export function createRoom(game) {
     lctx.globalCompositeOperation = 'destination-out';
     const lights = [
       ...torches.map((t) => [t.x, t.y - 4, 62 + Math.sin(time * 9 + t.x) * 4]),
-      [hero.x, hero.y - 20, 74],
+      [hero.x, hero.y - 24, 78],
       [T * 1.5, 8 * T, 40],
     ];
     if (cleared) lights.push([door.x, door.y - T, 46]);
@@ -520,6 +520,8 @@ export function createRoom(game) {
               ui.fade(() => game.goto('room'));
             }),
           ]);
+        } else {
+          hero.jump(); // B is jump when there's nothing to use
         }
       }
     },
