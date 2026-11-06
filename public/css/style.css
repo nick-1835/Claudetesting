@@ -327,3 +327,173 @@ kbd {
   margin: 0 0 12px;
   min-height: 1.5em;
 }
+
+/* ---------- Dungeon Delve ---------- */
+
+.dq-root { position: relative; }
+.dq-layer {
+  position: absolute;
+  inset: 2px;
+  overflow: hidden;
+  border-radius: 12px;
+  container-type: size; /* text sizes (cqw) follow the game's on-screen size */
+  pointer-events: none;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #f3e6c8;
+}
+.dq-layer [hidden] { display: none !important; }
+
+.dq-objective {
+  position: absolute;
+  top: 2cqw;
+  left: 2cqw;
+  max-width: 70cqw;
+  font-size: 3.1cqw;
+  background: rgba(10, 6, 4, 0.72);
+  border: 1px solid #7a5a2e;
+  border-radius: 2cqw;
+  padding: 1.2cqw 2.4cqw;
+}
+.dq-banner {
+  position: absolute;
+  top: 15cqw;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 4.4cqw;
+  font-weight: bold;
+  color: #ffd77a;
+  background: rgba(30, 18, 8, 0.94);
+  border: 2px solid #c9a24a;
+  border-radius: 2cqw;
+  padding: 2cqw 4cqw;
+  animation: dq-banner 3.2s forwards;
+}
+@keyframes dq-banner {
+  0% { opacity: 0; transform: translate(-50%, -1.5cqw); }
+  10%, 80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; }
+}
+.dq-hint {
+  position: absolute;
+  bottom: 3cqw;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 3.4cqw;
+  background: rgba(10, 6, 4, 0.78);
+  border: 1px solid #7a5a2e;
+  border-radius: 99px;
+  padding: 1.2cqw 3.2cqw;
+}
+
+.dq-dialog {
+  position: absolute;
+  left: 2.5cqw;
+  right: 2.5cqw;
+  bottom: 2.5cqw;
+  min-height: 30cqw;
+  padding: 4cqw 4cqw 5cqw;
+  background: linear-gradient(#2c1c10, #1a1008);
+  border: 2px solid #c9a24a;
+  border-radius: 2.5cqw;
+  box-shadow: 0 0 0 2px #1a1008, 0 6px 20px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.dq-name {
+  position: absolute;
+  top: -3.8cqw;
+  left: 4cqw;
+  background: #c9a24a;
+  color: #1a1008;
+  font-weight: bold;
+  font-size: 3.4cqw;
+  padding: 0.6cqw 2.4cqw;
+  border-radius: 1.5cqw;
+}
+.dq-text { font-size: 4.4cqw; line-height: 1.4; }
+.dq-more {
+  position: absolute;
+  right: 3cqw;
+  bottom: 1.5cqw;
+  font-size: 3cqw;
+  color: #c9a24a;
+  animation: dq-bob 0.8s ease-in-out infinite alternate;
+}
+@keyframes dq-bob { to { transform: translateY(0.8cqw); } }
+
+.dq-choice {
+  position: absolute;
+  left: 6cqw;
+  right: 6cqw;
+  bottom: 6cqw;
+  padding: 4cqw;
+  text-align: center;
+  background: linear-gradient(#2c1c10, #1a1008);
+  border: 2px solid #c9a24a;
+  border-radius: 2.5cqw;
+  pointer-events: auto;
+}
+.dq-question { font-size: 4.6cqw; margin-bottom: 3.5cqw; }
+.dq-buttons { display: flex; gap: 3cqw; justify-content: center; }
+
+.dq-btn {
+  font-family: inherit;
+  font-size: 4.2cqw;
+  font-weight: bold;
+  background: #c9a24a;
+  color: #1a1008;
+  border: 0;
+  border-radius: 2cqw;
+  padding: 2.4cqw 5cqw;
+  cursor: pointer;
+}
+.dq-btn.alt { background: #3a2a1a; color: #f3e6c8; box-shadow: inset 0 0 0 1px #7a5a2e; }
+.dq-btn:focus-visible, .dq-tap:focus-visible { outline: 2px solid #fff3b0; outline-offset: 2px; }
+
+.dq-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5cqw;
+  padding: 8cqw;
+  text-align: center;
+  background: radial-gradient(ellipse at center, rgba(20, 10, 5, 0.55), rgba(5, 3, 8, 0.93));
+  pointer-events: auto;
+  cursor: pointer;
+}
+.dq-kicker { font-size: 3.6cqw; letter-spacing: 0.3em; text-transform: uppercase; color: #c9a24a; }
+.dq-title {
+  margin: 0;
+  font-size: 12cqw;
+  line-height: 1.05;
+  font-weight: bold;
+  color: #ffd77a;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0.7cqw 0 #7a3e10, 0 0 5cqw rgba(255, 160, 60, 0.55);
+}
+.dq-title.small { font-size: 10cqw; }
+.dq-sub { font-size: 4.4cqw; font-style: italic; color: #d9c39a; max-width: 80cqw; }
+.dq-note { font-size: 3.6cqw; color: #9a9cc4; margin: 3cqw 0; }
+.dq-tap {
+  margin-top: 10cqw;
+  font-family: inherit;
+  font-size: 4.4cqw;
+  color: #f3e6c8;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  animation: dq-pulse 1.4s ease-in-out infinite;
+}
+@keyframes dq-pulse { 50% { opacity: 0.35; } }
+.dq-fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  transition: opacity 0.5s;
+}

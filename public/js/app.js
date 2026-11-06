@@ -5,9 +5,10 @@ import pong from './games/pong.js';
 import breakout from './games/breakout.js';
 import memory from './games/memory.js';
 import tictactoe from './games/tictactoe.js';
+import dungeon from './games/dungeon/index.js';
 
 // To add a game: create a module in js/games/ and add it to this list.
-const GAMES = [snake, pong, breakout, memory, tictactoe];
+const GAMES = [dungeon, snake, pong, breakout, memory, tictactoe];
 
 const app = document.getElementById('app');
 const nav = document.getElementById('nav');
@@ -116,7 +117,7 @@ function renderGame(game) {
     const w = +canvas.dataset.w, h = +canvas.dataset.h;
     const fit = () => {
       const border = 4;
-      const scale = Math.min((stage.clientWidth - border) / w, (stage.clientHeight - border) / h, 1.6);
+      const scale = Math.min((stage.clientWidth - border) / w, (stage.clientHeight - border) / h, +canvas.dataset.maxScale || 1.6);
       if (scale <= 0) return;
       canvas.style.width = `${Math.floor(w * scale)}px`;
       canvas.style.height = `${Math.floor(h * scale)}px`;
