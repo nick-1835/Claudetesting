@@ -43,7 +43,6 @@ export default {
         const card = document.createElement('button');
         card.className = 'memory-card';
         card.dataset.sym = sym;
-        card.textContent = sym;
         card.setAttribute('aria-label', 'Hidden card');
         card.addEventListener('click', () => flip(card));
         board.append(card);
@@ -52,6 +51,8 @@ export default {
 
     function reveal(card, on) {
       card.classList.toggle('flipped', on);
+      // Only put the picture in the card while it's face up.
+      card.textContent = on ? card.dataset.sym : '';
       card.setAttribute('aria-label', on ? card.dataset.sym : 'Hidden card');
     }
 
