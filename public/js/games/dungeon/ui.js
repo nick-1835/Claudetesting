@@ -1,5 +1,6 @@
-// HTML layer drawn over the game canvas: dialogue box, choices, banners and
+// HTML layer drawn over the game: HUD, dialogue box, choices, banners and
 // full-screen cards. Text stays crisp because it isn't drawn on the pixel canvas.
+import { ICONS } from './sprites.js';
 
 function div(cls, text) {
   const el = document.createElement('div');
@@ -11,15 +12,32 @@ function div(cls, text) {
 function button(label, cls, onClick) {
   const b = document.createElement('button');
   b.className = cls;
-  b.textContent = label;
+  b.innerHTML = label;
   b.addEventListener('click', onClick);
   return b;
 }
 
-export function createUI(root) {
+export function createUI(view, { onPause }) {
   const layer = div('dq-layer');
+
+  // ----- HUD -----
+  const hud = div('dq-hud');
+  const stats = div('dq-hud-stats');
+  const hpEl = div('dq-hud-item', '');
+  const goldEl = div('dq-hud-item', '');
+  const keyEl = div('dq-hud-item dq-key off', '');
+  const lvlEl = div('dq-hud-item dq-lvl', '');
+  hpEl.innerHTML = `${ICONS.heart}<b>100</b>`;
+  goldEl.innerHTML = `${ICONS.coin}<b>0</b>`;
+  keyEl.innerHTML = ICONS.key;
+  lvlEl.innerHTML = '<b>LV1</b><span class="dq-xp"><i></i></span>';
+  stats.append(hpEl, goldEl, keyEl, lvlEl);
+  const pauseBtn = button('<span class="dq-pause-icon"></span>', 'dq-hud-btn', (e) => { e.stopPropagation(); onPause(); });
+  pauseBtn.setAttribute('aria-label', 'Pause');
   const objective = div('dq-objective');
-  const hint = div('dq-hint');
+  hud.append(stats, pauseBtn, objective);
+
+  // ----- Dialogue, choices, screens -----
   const dialog = div('dq-dialog');
   const nameEl = div('dq-name');
   const textEl = div('dq-text');
@@ -28,9 +46,9 @@ export function createUI(root) {
   const choiceEl = div('dq-choice');
   const screen = div('dq-screen');
   const fadeEl = div('dq-fade');
-  layer.append(objective, hint, dialog, choiceEl, screen, fadeEl);
-  root.append(layer);
-  for (const el of [objective, hint, dialog, choiceEl, screen]) el.hidden = true;
+  layer.append(hud, dialog, choiceEl, screen, fadeEl);
+  view.append(layer);
+  for (const el of [hud, objective, dialog, choiceEl, screen]) el.hidden = true;
 
   let queue = [];
   let line = null;
@@ -65,10 +83,21 @@ export function createUI(root) {
     more.hidden = false;
   }
 
+  const activeModal = () => (!choiceEl.hidden ? choiceEl : !screen.hidden ? screen : null);
+
   const ui = {
     get dialogOpen() { return !dialog.hidden; },
-    /** True while anything is on screen that should stop the hero moving. */
+    /** True while anything is on screen that should stop the hero acting. */
     get busy() { return !dialog.hidden || !choiceEl.hidden || !screen.hidden || fading; },
+
+    showHud(on) { hud.hidden = !on; },
+    setStats({ hp, gold, key, level, xp }) {
+      if (hp !== undefined) hpEl.querySelector('b').textContent = hp;
+      if (gold !== undefined) goldEl.querySelector('b').textContent = gold;
+      if (key !== undefined) keyEl.classList.toggle('off', !key);
+      if (level !== undefined) lvlEl.querySelector('b').textContent = `LV${level}`;
+      if (xp !== undefined) lvlEl.querySelector('i').style.width = `${Math.round(xp * 100)}%`;
+    },
 
     /** Show lines of dialogue: [{ name, text }, ...]. `done` runs after the last one. */
     say(lines, done) {
@@ -78,7 +107,7 @@ export function createUI(root) {
       showLine();
     },
 
-    /** Tap / key: finish typing the current line, or go to the next one. */
+    /** Finish typing the current line, or go to the next one. */
     advance() {
       if (dialog.hidden) return;
       if (typer) { finishTyping(); return; }
@@ -95,7 +124,8 @@ export function createUI(root) {
       choiceEl.replaceChildren(div('dq-question', question));
       const row = div('dq-buttons');
       options.forEach((opt, i) => {
-        row.append(button(opt.label, i === 0 ? 'dq-btn' : 'dq-btn alt', () => {
+        row.append(button(opt.label, i === 0 ? 'dq-btn' : 'dq-btn alt', (e) => {
+          e.stopPropagation();
           choiceEl.hidden = true;
           if (opt.onPick) opt.onPick();
         }));
@@ -105,7 +135,7 @@ export function createUI(root) {
       row.firstChild.focus({ preventScroll: true });
     },
 
-    /** Full-screen card (title screen, chapter end, ...). */
+    /** Full-screen card (title, pause, chapter end, ...). */
     showScreen(children, onTap) {
       screen.replaceChildren(...children);
       screen.onclick = onTap || null;
@@ -114,15 +144,11 @@ export function createUI(root) {
       if (first) first.focus({ preventScroll: true });
     },
     hideScreen() { screen.hidden = true; screen.onclick = null; },
+    get screenOpen() { return !screen.hidden; },
 
     objective(text) {
       objective.textContent = text || '';
       objective.hidden = !text;
-    },
-
-    hint(text) {
-      if (hint.textContent !== (text || '')) hint.textContent = text || '';
-      hint.hidden = !text || ui.busy;
     },
 
     banner(text) {
@@ -142,23 +168,23 @@ export function createUI(root) {
       }, 550);
     },
 
-    /** Keyboard while UI is open. Returns true if the key was used by the UI. */
-    handleKey(key) {
-      const act = key === ' ' || key === 'Enter' || key === 'e' || key === 'E';
+    /** Route a control action to the UI. Returns true if the UI used it. */
+    handleAction(name) {
       if (!dialog.hidden) {
-        if (act) ui.advance();
+        if (name === 'interact' || name === 'attack' || name === 'jump') ui.advance();
         return true;
       }
-      const modal = !choiceEl.hidden ? choiceEl : !screen.hidden ? screen : null;
+      const modal = activeModal();
       if (!modal) return fading;
       const buttons = [...modal.querySelectorAll('button')];
       const i = buttons.indexOf(document.activeElement);
-      if (key === 'ArrowLeft' || key === 'ArrowUp') buttons[Math.max(0, i - 1)]?.focus();
-      else if (key === 'ArrowRight' || key === 'ArrowDown') buttons[Math.min(buttons.length - 1, i + 1)]?.focus();
-      else if (key === ' ' || key === 'e' || key === 'E') {
+      if (name === 'left') buttons[Math.max(0, i - 1)]?.focus();
+      else if (name === 'right') buttons[Math.min(buttons.length - 1, i + 1)]?.focus();
+      else if (name === 'interact' || name === 'attack') {
         if (i >= 0) buttons[i].click();
+        else if (buttons[0]) buttons[0].click();
         else if (modal === screen && screen.onclick) screen.onclick();
-      } else if (key === 'Enter' && i < 0 && modal === screen && screen.onclick) screen.onclick();
+      }
       return true;
     },
 
@@ -168,7 +194,7 @@ export function createUI(root) {
       layer.remove();
     },
 
-    // Small helpers for building screen content.
+    // Helpers for building screen content.
     el: div,
     button,
   };

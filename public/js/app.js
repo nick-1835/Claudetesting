@@ -108,6 +108,7 @@ function renderGame(game) {
   const gameRoot = el('div');
   const frame = el('div', { class: 'frame' }, gameRoot, overlay);
   stage.append(frame);
+  if (game.immersive) document.body.classList.add('immersive');
   const unmount = game.mount(gameRoot, api);
 
   // Scale canvas games to the largest size that fits the screen (no scrolling).
@@ -130,6 +131,7 @@ function renderGame(game) {
   }
 
   cleanup = () => {
+    document.body.classList.remove('immersive');
     if (observer) observer.disconnect();
     if (unmount) unmount();
   };

@@ -6,7 +6,7 @@ A small web app that hosts simple browser games. Plain HTML, CSS and JavaScript 
 
 | Game | Controls |
 | --- | --- |
-| 🗡️ Dungeon Delve (work in progress) | Tap to walk / tap people to talk; WASD + E on keyboard |
+| 🗡️ Dungeon Delve (work in progress) | Joystick + A (use) / B (attack) on touch; A/D move, W/Space jump, J attack, E use, Esc pause |
 | 🐍 Snake | Arrow keys / WASD or swipe, Space to pause |
 | 🏓 Pong (vs CPU, first to 7) | W/S or ↑/↓, or drag on the court |
 | 🧱 Brick Breaker | ←/→, A/D, mouse or touch; Space to launch |
@@ -41,7 +41,7 @@ public/
   js/engine.js         shared helpers: canvas, game loop, input
   js/scores.js         high score storage
   js/games/*.js        one module per game
-  js/games/dungeon/    Dungeon Delve: scenes (tavern, cellar), sprites, dialogue UI
+  js/games/dungeon/    Dungeon Delve: scenes (tavern, cellar), knight, sprites, HUD/dialogue UI, touch controls
 ```
 
 ## Adding a game

@@ -1,4 +1,4 @@
-// Pixel-art character sprites, defined as text maps and baked into small canvases.
+// Pixel-art sprites, defined as text maps and baked into small canvases.
 // Each character in a map is one pixel; '.' is transparent.
 
 export const PALETTE = {
@@ -16,7 +16,22 @@ export const PALETTE = {
   n: '#7a5230', // brown cloth
 };
 
-function bake(rows, palette = PALETTE, flip = false) {
+const KNIGHT_PAL = {
+  k: '#1a1020', // outline
+  r: '#d63c2f', // plume
+  R: '#8e2a1f', // plume shade
+  L: '#eef2f8', // steel highlight
+  S: '#b4bccb', // steel
+  D: '#6c7484', // steel shade
+  t: '#2f5fb3', // tabard
+  T: '#21447f', // tabard shade
+  y: '#e8b84a', // gold trim
+  b: '#5a3a1a', // belt
+  o: '#3a2a20', // boots
+  g: '#7a4e2a', // glove
+};
+
+export function bake(rows, palette = PALETTE, flip = false) {
   const h = rows.length;
   const w = rows[0].length;
   const c = document.createElement('canvas');
@@ -36,78 +51,46 @@ function bake(rows, palette = PALETTE, flip = false) {
   return c;
 }
 
-// ---------- Hero (12x16) ----------
+// ---------- Knight (16x18, side view, facing right) ----------
 
-const FRONT_TOP = [
-  '...kkkkkk...',
-  '..khhhhhhk..',
-  '.khhhhhhhhk.',
-  '.khsssssshk.',
-  '.kskssssksk.',
-  '.kssssssssk.',
-  '..kssssssk..',
-  '.kttttttttk.',
-  'kstttbbtttsk',
-  'ksttttttttsk',
-  '.kbbbbbbbbk.',
-  '.kppppppppk.',
-  '.kpppkkpppk.',
+const KNIGHT_TOP = [
+  '.......rr.......',
+  '......rRRr......',
+  '.....kkkkkk.....',
+  '....kLLLSSSk....',
+  '....kLSSSSSSk...',
+  '....kSSSSkkkk...',
+  '....kSSSSSSDk...',
+  '....kDSSSSDDk...',
+  '.....kkkkkkk....',
+  '....kSttyttSk...',
+  '...kSktttttkSk..',
+  '...kSktyTttkgk..',
+  '....kbbbbbbk....',
+  '....ktttTttk....',
 ];
-const BACK_TOP = [
-  '...kkkkkk...',
-  '..khhhhhhk..',
-  '.khhhhhhhhk.',
-  '.khhhhhhhhk.',
-  '.khhhhhhhhk.',
-  '.kshhhhhhsk.',
-  '..kssssssk..',
-  '.kttttttttk.',
-  'ksttttttttsk',
-  'ksttttttttsk',
-  '.kbbbbbbbbk.',
-  '.kppppppppk.',
-  '.kpppkkpppk.',
-];
-const SIDE_TOP = [
-  '...kkkkkk...',
-  '..khhhhhhk..',
-  '.khhhhhhhhk.',
-  '.khhhssssk..',
-  '.khhsssksk..',
-  '.khssssssk..',
-  '..kssssk....',
-  '..kttttttk..',
-  '..kttttstk..',
-  '..kttttstk..',
-  '..kbbbbbbk..',
-  '..kppppppk..',
-  '..kppkkppk..',
-];
-const FRONT_LEGS = {
-  stand: ['.kppk..kppk.', '.kook..kook.', '..kk....kk..'],
-  a: ['.kppk..kook.', '.kook...kk..', '..kk........'],
-  b: ['.kook..kppk.', '..kk...kook.', '........kk..'],
-};
-const SIDE_LEGS = {
-  stand: ['..kpk..kpk..', '..kok..kok..', '..kk...kk...'],
-  a: ['.kpk....kpk.', '.kok....kok.', '.kk.....kk..'],
-  b: ['...kpkkpk...', '...kokkok...', '...kk.kk....'],
+const KNIGHT_LEGS = {
+  stand: ['....kDDkDDDk....', '....kSDk.kSDk...', '...koook.koook..', '...kkkkk.kkkkk..'],
+  a: ['...kDDk..kDDk...', '..kSDk....kSDk..', '.koook....koook.', '.kkkkk....kkkkk.'],
+  b: ['.....kDDDDk.....', '.....kSDSDk.....', '....koooook.....', '....kkkkkkk.....'],
+  jump: ['....kDDkDDk.....', '...kSDk.kSDk....', '...kook..kook...', '...kkk...kkk....'],
 };
 
-function frames(top, legs, palette, flip) {
-  // Walk cycle: stride A, stand, stride B, stand.
-  const stand = bake([...top, ...legs.stand], palette, flip);
-  return [bake([...top, ...legs.a], palette, flip), stand, bake([...top, ...legs.b], palette, flip), stand];
+function knightSet(flip) {
+  const make = (legs) => bake([...KNIGHT_TOP, ...legs], KNIGHT_PAL, flip);
+  const stand = make(KNIGHT_LEGS.stand);
+  return { stand, walk: [make(KNIGHT_LEGS.a), stand, make(KNIGHT_LEGS.b), stand], jump: make(KNIGHT_LEGS.jump) };
 }
 
-export const HERO = {
-  down: frames(FRONT_TOP, FRONT_LEGS),
-  up: frames(BACK_TOP, FRONT_LEGS),
-  right: frames(SIDE_TOP, SIDE_LEGS),
-  left: frames(SIDE_TOP, SIDE_LEGS, PALETTE, true),
+export const KNIGHT = {
+  w: 16,
+  h: 18,
+  hand: { x: 12, y: 11 }, // sword hand, facing right
+  right: knightSet(false),
+  left: knightSet(true),
 };
 
-// ---------- Barkeep (12x16) ----------
+// ---------- Barkeep (12x16, facing the viewer) ----------
 
 export const BARKEEP = bake([
   '...kkkkkk...',
@@ -128,7 +111,63 @@ export const BARKEEP = bake([
   '..kk....kk..',
 ]);
 
-// ---------- Sleeping patron: the hero's shape in a green hood, eyes shut ----------
+// ---------- Sleeping patron in a green hood ----------
 
-const SLEEPY_TOP = FRONT_TOP.map((row, i) => (i === 4 ? '.kskksskksk.' : row));
-export const PATRON = bake([...SLEEPY_TOP, ...FRONT_LEGS.stand], { ...PALETTE, h: PALETTE.g, t: PALETTE.n });
+export const PATRON = bake([
+  '...kkkkkk...',
+  '..kggggggk..',
+  '.kggggggggk.',
+  '.kgsssssgk..',
+  '.kgskksskk..',
+  '.kgssssssk..',
+  '..kssssssk..',
+  '.knnnnnnnnk.',
+  'ksnnnbbnnnsk',
+  'ksnnnnnnnnsk',
+  '.kbbbbbbbbk.',
+  '.kppppppppk.',
+  '.kpppkkpppk.',
+  '.kppk..kppk.',
+  '.kook..kook.',
+  '..kk....kk..',
+]);
+
+// ---------- Pixel icons for the HUD (as inline SVG) ----------
+
+function svgIcon(rows, colors) {
+  const w = rows[0].length;
+  const h = rows.length;
+  let rects = '';
+  rows.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch !== '.') rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${colors[ch]}"/>`;
+  }));
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+}
+
+export const ICONS = {
+  heart: svgIcon([
+    '.kk.kk.',
+    'krrkrrk',
+    'krwrrrk',
+    'krrrrrk',
+    '.krrrk.',
+    '..krk..',
+    '...k...',
+  ], { k: '#1a1020', r: '#e8453c', w: '#ffb3a8' }),
+  coin: svgIcon([
+    '.kkkk.',
+    'kyyyyk',
+    'kywyyk',
+    'kyyydk',
+    'kyyddk',
+    '.kkkk.',
+  ], { k: '#1a1020', y: '#f2c94c', w: '#fff3b0', d: '#c08a1e' }),
+  key: svgIcon([
+    '.kkk.......',
+    'kyyyk......',
+    'ky.ykkkkkk.',
+    'kyyyyyyyyyk',
+    '.kkk.kyky.k',
+    '......k.k..',
+  ], { k: '#1a1020', y: '#f2c94c' }),
+};
