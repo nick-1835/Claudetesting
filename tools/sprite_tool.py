@@ -286,21 +286,35 @@ def hero_frame(pose):
     sp.part(limb((21.5, Y(11)), (21.5, Y(14)), 1.6), 'skin', lambda x, y: 2)
     scarf = ellipse(21.5, Y(14), 4.6, 1.8) | limb((18, Y(14)), (15, Y(17)), 1.2, 0.8)
     sp.part(scarf, 'scarf', side_shade(scarf))
-    # 7. head: profile facing right, square jaw
-    head = poly([(17.5, Y(5)), (19, Y(2.5)), (23, Y(2)), (25.5, Y(4)), (26, Y(6)), (27, Y(8)), (26, Y(9)),
-                 (25.8, Y(10.5)), (24.5, Y(12)), (21, Y(12)), (18.5, Y(10.5)), (17.5, Y(8))])
-    sp.part(head, 'skin', lambda x, y: 2 if x < 21 or y > Y(11) else 1)
-    # short hair: top and back of the head
-    hair = {(x, y) for (x, y) in head if y < Y(4.5) or (x < 21 and y < Y(9)) or (x < 22.5 and y < Y(5.5))}
-    hair |= {(x, Y(4)) for x in range(23, 26)}
-    sp.part(hair, 'hair', lambda x, y: 0 if y < Y(3.5) and x > 19 else 1)
-    sp.set(20, Y(8), 'S')    # ear
-    sp.set(19, Y(8), 'q')
-    sp.set(23, Y(6), 'e')    # eye
-    sp.set(24, Y(6), '5')
-    sp.set(23, Y(5), 'j'); sp.set(24, Y(5), 'j')  # brow
-    sp.set(26, Y(9), 'S')    # under the nose
-    sp.set(25, Y(10), 'q')   # mouth
+    # 7. knight's helm, profile facing right: rounded dome, eye slit, riveted brow band,
+    #    cheek guard with breathing holes, and a red crest
+    helm = poly([(17, Y(6.5)), (18, Y(3.5)), (20.5, Y(1.6)), (24, Y(1.6)), (26.4, Y(3.4)), (27.4, Y(6.5)),
+                 (27.6, Y(10)), (26.6, Y(12.4)), (23, Y(13.2)), (19.5, Y(13)), (17.6, Y(11.4)), (16.8, Y(9))])
+    def helm_tone(x, y):
+        if x >= 24 and y < Y(6): return 0          # light catches the front of the dome
+        if x <= 19 or y >= Y(11.5): return 2       # back and bottom in shadow
+        return 1
+    sp.part(helm, 'steel', helm_tone)
+    for x in range(18, 28):                         # brow band
+        if (x, Y(5)) in helm and sp.g[Y(5)][x] != 'k':
+            sp.set(x, Y(5), 'M')
+    for x in (19, 22, 25):                          # rivets
+        sp.set(x, Y(5), 'w')
+    for x in range(22, 28):                         # eye slit
+        if (x, Y(7)) in helm:
+            sp.set(x, Y(7), 'k')
+    for x in range(23, 27):
+        if (x, Y(8)) in helm and sp.g[Y(8)][x] != 'k':
+            sp.set(x, Y(8), 'n')                    # shadow under the slit
+    for (x, y) in ((24, Y(10)), (26, Y(10)), (25, Y(11))):  # breathing holes
+        sp.set(x, y, 'n')
+    for y in range(Y(6), Y(12)):                    # seam between dome and cheek guard
+        if (20, y) in helm:
+            sp.set(20, y, 'M')
+    # plume: rises from the crown and sweeps back down behind the helm
+    plume = (limb((23, Y(1.6)), (19.5, Y(1.2)), 1.5, 1.9) | limb((19.5, Y(1.2)), (15.8, Y(3.2)), 1.9, 1.8)
+             | limb((15.8, Y(3.2)), (14.2, Y(7.5)), 1.8, 1.2))
+    sp.part(plume, 'scarf', lambda x, y: 0 if (y <= Y(1) and x > 18) else (2 if x < 16 else 1))
     # 8. near arm reaches forward and holds the shield out in front
     upper = ((25, Y(16)), (26.5, Y(21)))
     sp.part(limb(upper[0], upper[1], 2.3, 2.0), 'tunic', limb_shade(*upper))
@@ -310,34 +324,28 @@ def hero_frame(pose):
     sp.part(paul, 'steel', side_shade(paul, 0.35, 0.25))
     for x in range(23, 28):
         sp.set(x, Y(17), 'M')  # layered plate line
-    # 9. tall rounded shield (left hand, in front): thick silver rim, red face, light bevel band
-    sx, sy = pose.get('shield', (30.5, 23))
+    # 9. heater shield (left hand, in front): flat top, straight sides, pointed base,
+    #    even silver rim, plain red face, gold stud. Simple shapes read best at this size.
+    sx, sy = pose.get('shield', (30, 15.5))
     sy = Y(sy)
-    rx, ry = 5.2, 8.6
-    shield = set()
-    for y in range(int(sy - ry) - 1, int(sy + ry) + 2):
-        for x in range(int(sx - rx) - 1, int(sx + rx) + 2):
-            nx, ny = (x + 0.5 - sx) / rx, (y + 0.5 - sy) / ry
-            if abs(nx) ** 2.6 + abs(ny) ** 2.2 <= 1:
-                shield.add((x, y))
-    sp.part(shield, 'steel', lambda x, y: 0 if (x > sx + 1 or y < sy - ry + 3) else (2 if x < sx - 2 else 1))
-    for (x, y) in shield:
-        nx, ny = (x + 0.5 - sx) / (rx - 1.8), (y + 0.5 - sy) / (ry - 1.8)
-        if abs(nx) ** 2.6 + abs(ny) ** 2.2 <= 1:
-            d = (x + 0.5 - sx) - (y + 0.5 - sy) * 0.35  # diagonal band across the face
-            if 0.4 < d < 2.0:
-                ch = 'y'
-            elif x < sx - 1.5 or y > sy + ry - 4:
-                ch = 'X'
-            else:
-                ch = 'x'
-            sp.set(x, y, ch)
-    # inner edge of the rim catches a dark line so the face reads as recessed
-    face = {(x, y) for (x, y) in shield if sp.g[y][x] in 'yxX'}
-    for (x, y) in face:
-        if any((x + dx, y + dy) not in face for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-            if y < sy - 1 or x < sx:
-                sp.set(x, y, 'z')
+    pts = [(sx - 5.6, sy), (sx + 5.6, sy), (sx + 5.6, sy + 6.5), (sx + 5.0, sy + 9), (sx + 3.6, sy + 11.6),
+           (sx + 1.6, sy + 13.4), (sx, sy + 14.4), (sx - 1.6, sy + 13.4), (sx - 3.6, sy + 11.6),
+           (sx - 5.0, sy + 9), (sx - 5.6, sy + 6.5)]
+    shield = poly(pts)
+    sp.part(shield, 'steel', lambda x, y: 0 if y <= sy + 1 else 1)
+    inner = {(x, y) for (x, y) in shield
+             if all((x + dx, y + dy) in shield for dx in (-2, -1, 0, 1, 2) for dy in (-2, -1, 0, 1, 2)
+                    if abs(dx) + abs(dy) <= 2)}
+    for (x, y) in inner:
+        if (x, y - 1) not in inner or (x + 1, y) not in inner:
+            ch = 'y'                                # lit top and right inner edge
+        elif (x - 1, y) not in inner or (x, y + 1) not in inner:
+            ch = 'X'                                # shaded left and bottom inner edge
+        else:
+            ch = 'x'
+        sp.set(x, y, ch)
+    bx, by = int(sx) - 1, int(sy) + 5               # gold stud
+    sp.set(bx, by, 'g'); sp.set(bx + 1, by, 'g'); sp.set(bx, by + 1, 'G'); sp.set(bx + 1, by + 1, 'g')
     return sp.rows(), (hx, hy)
 
 
@@ -347,7 +355,7 @@ HERO_POSES = {
     'walk2': {'back': ((19, 37), (17, 41), True), 'front': ((22, 38), (22, 43)), 'bob': 1},
     'walk3': {'back': ((24, 37), (26, 43)), 'front': ((17, 37), (14, 43))},
     'walk4': {'back': ((19, 38), (19, 43)), 'front': ((24, 37), (22, 41), True), 'bob': 1},
-    'jump': {'back': ((15, 35), (14, 39), True), 'front': ((27, 34), (25, 39), True), 'hand': (12, 24), 'shield': (30.5, 21)},
+    'jump': {'back': ((15, 35), (14, 39), True), 'front': ((27, 34), (25, 39), True), 'hand': (12, 24), 'shield': (30, 13.5)},
     'attack': {'back': ((14, 37), (11, 43)), 'front': ((27, 37), (28, 43)), 'no_sword_arm': True},
 }
 

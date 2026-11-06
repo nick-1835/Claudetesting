@@ -394,8 +394,8 @@ export function createTavern(game, opts = {}) {
     ctx.fillRect(x - 5, y, 11, 9);
     ctx.fillRect(x, y + 9, 1, 2);
     ctx.fillStyle = '#c0392b';
-    const A = ['###.', '#..#', '###.', '#..#', '###.']; // "B" = use
-    A.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 1 + rx, y + 2 + ry, 1, 1); }));
+    const A = ['####.', '#...#', '#...#', '####.', '#...#', '#...#', '####.']; // "B" = use
+    A.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 2 + rx, y + 1 + ry, 1, 1); }));
   }
 
   function render(ctx, view) {
