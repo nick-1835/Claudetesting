@@ -1,0 +1,10 @@
+{
+  "name": "pixel-arcade",
+  "version": "1.0.0",
+  "description": "A tiny web arcade hosting simple browser games: Snake, Pong, Brick Breaker, Memory and Tic-Tac-Toe.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT"
+}
