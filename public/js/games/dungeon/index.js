@@ -4,9 +4,11 @@ import { createLoop, trackKeys } from '../../engine.js';
 import { createUI } from './ui.js';
 import { createControls } from './controls.js';
 import { createTavern } from './tavern.js';
-import { createCellar } from './cellar.js';
+import { createRoom } from './room.js';
 
-const SCENES = { tavern: createTavern, cellar: createCellar };
+const SCENES = { tavern: createTavern, room: createRoom };
+const newPlayer = () => ({ hp: 100, maxHp: 100, gold: 10, level: 1, xp: 0, key: false });
+const xpNeeded = (level) => 20 + (level - 1) * 15;
 const VIEW_H = 180; // game pixels, top to bottom
 
 export default {
@@ -68,6 +70,11 @@ export default {
       ui,
       input,
       view: { W: 320, H: VIEW_H, S: 3 },
+      player: newPlayer(),
+      syncHud() {
+        const p = game.player;
+        ui.setStats({ hp: p.hp, gold: p.gold, key: p.key, level: p.level, xp: p.xp / xpNeeded(p.level) });
+      },
       goto(name, opts) {
         if (scene && scene.dispose) scene.dispose();
         ui.hideScreen();
@@ -117,7 +124,7 @@ export default {
       ui.showScreen([
         title,
         button('Resume', 'dq-btn', (e) => { e.stopPropagation(); togglePause(); }),
-        button('Restart chapter', 'dq-btn alt', (e) => { e.stopPropagation(); paused = false; game.goto('tavern'); }),
+        button('Restart chapter', 'dq-btn alt', (e) => { e.stopPropagation(); paused = false; game.player = newPlayer(); game.goto('tavern'); }),
         button('Exit to arcade', 'dq-btn alt', (e) => { e.stopPropagation(); game.exit(); }),
         el('dq-note', coarse ? '' : 'Keys: A/D move · W or Space jump · J attack · E interact · Esc pause'),
       ]);

@@ -1,6 +1,6 @@
 // The Rusty Flagon (side view): title screen, the knight's entrance, Bram's
 // quest, and the cellar door that leads into the dungeon.
-import { BARKEEP, PATRON } from './sprites.js';
+import { BRAM, PATRON } from './sprites.js';
 import { createHero, drawHero } from './hero.js';
 
 const WORLD_W = 560;
@@ -15,7 +15,7 @@ const ZONES = {
 const DOOR_X = 33;
 const FIRE = { x: 94, y: 140 };
 const LANTERNS = [262, 372];
-const CANDLES = [{ x: 168, y: 124 }, { x: 455, y: 124 }];
+const CANDLES = [{ x: 168, y: 130 }, { x: 455, y: 130 }];
 
 function rng(seed) {
   let s = seed;
@@ -159,55 +159,45 @@ function buildBack() {
 function buildMid() {
   const [c, g] = canvas(WORLD_W, H);
   const px = (color, x, y, w = 1, h = 1) => { g.fillStyle = color; g.fillRect(x, y, w, h); };
+  const TOP = 130; // counter top
 
   // Bar counter.
-  px('#1a100a', 226, 117, 182, GROUND - 117);
-  px('#9a6634', 226, 118, 182, 5);
-  px('#c08040', 226, 118, 182, 1);
-  px('#5a3418', 228, 123, 178, GROUND - 123);
+  px('#1a100a', 226, TOP - 1, 182, GROUND - TOP + 1);
+  px('#9a6634', 226, TOP, 182, 4);
+  px('#c08040', 226, TOP, 182, 1);
+  px('#5a3418', 228, TOP + 4, 178, GROUND - TOP - 4);
   for (let x = 228; x < 406; x += 22) {
-    px('#46280f', x, 123, 1, GROUND - 123);
-    px('#46280f', x + 4, 128, 14, 1);
-    px('#46280f', x + 4, 144, 14, 1);
-    px('#46280f', x + 4, 128, 1, 17);
-    px('#6a4020', x + 17, 128, 1, 17);
+    px('#46280f', x, TOP + 4, 1, GROUND - TOP - 4);
+    px('#46280f', x + 4, TOP + 7, 14, 1);
+    px('#46280f', x + 4, GROUND - 3, 14, 1);
+    px('#46280f', x + 4, TOP + 7, 1, GROUND - TOP - 10);
+    px('#6a4020', x + 17, TOP + 7, 1, GROUND - TOP - 10);
   }
-  for (const mx of [240, 330, 392]) { // mugs on the counter
-    px('#c9c9c9', mx, 112, 5, 6);
-    px('#9a9a9a', mx + 5, 113, 1, 4);
-    px('#f5e6b0', mx, 112, 5, 1);
-  }
-
-  // Bar stools.
-  for (const sx of [254, 296, 338, 380]) {
-    px('#3a2412', sx - 6, 132, 12, 3);
-    px('#6b4423', sx - 6, 131, 12, 2);
-    px('#3a2412', sx - 5, 135, 1, GROUND - 135);
-    px('#3a2412', sx + 4, 135, 1, GROUND - 135);
-    px('#3a2412', sx - 5, 143, 10, 1);
+  for (const mx of [240, 352, 392]) { // mugs on the counter
+    px('#c9c9c9', mx, TOP - 6, 5, 6);
+    px('#9a9a9a', mx + 5, TOP - 5, 1, 4);
+    px('#f5e6b0', mx, TOP - 6, 5, 1);
   }
 
   // Tables (side view) with a mug and candle.
   for (const t of CANDLES) {
     const x = t.x - 24;
-    px('#1a100a', x, 127, 48, 5);
-    px('#8a5a30', x, 127, 48, 1);
-    px('#7a4e2a', x, 128, 48, 3);
-    px('#3a2412', x + 4, 132, 3, GROUND - 132);
-    px('#3a2412', x + 41, 132, 3, GROUND - 132);
-    px('#e8dcc0', t.x - 1, 120, 3, 7);
-    px('#c9c9c9', t.x + 10, 121, 5, 6);
-    px('#f5e6b0', t.x + 10, 121, 5, 1);
+    px('#1a100a', x, 136, 48, 4);
+    px('#8a5a30', x, 136, 48, 1);
+    px('#7a4e2a', x, 137, 48, 2);
+    px('#3a2412', x + 4, 140, 3, GROUND - 140);
+    px('#3a2412', x + 41, 140, 3, GROUND - 140);
+    px('#e8dcc0', t.x - 1, 129, 3, 7);
+    px('#c9c9c9', t.x + 10, 130, 5, 6);
+    px('#f5e6b0', t.x + 10, 130, 5, 1);
   }
-  // Bench for the sleeping patron.
-  px('#3a2412', 140, 138, 30, 3);
-  px('#6b4423', 140, 137, 30, 1);
-  px('#3a2412', 142, 141, 2, GROUND - 141);
-  px('#3a2412', 166, 141, 2, GROUND - 141);
-
-  // Right-hand table also gets a bench.
-  px('#3a2412', 428, 138, 22, 3);
-  px('#6b4423', 428, 137, 22, 1);
+  // Benches.
+  for (const [bx, bw] of [[134, 34], [430, 22]]) {
+    px('#3a2412', bx, 142, bw, 3);
+    px('#6b4423', bx, 141, bw, 1);
+    px('#3a2412', bx + 2, 145, 2, GROUND - 145);
+    px('#3a2412', bx + bw - 4, 145, 2, GROUND - 145);
+  }
   return c;
 }
 
@@ -220,6 +210,11 @@ export function createTavern(game, opts = {}) {
   let light = null, lctx = null;
 
   const hero = createHero(DOOR_X, GROUND);
+  // The tavern is one flat floor between two walls.
+  const world = {
+    gravity: 900,
+    solid: (px, py) => py >= GROUND || px < 8 || px > WORLD_W - 8,
+  };
   let state = 'title';
   let quest = !!opts.quest;
   let time = 0;
@@ -229,7 +224,8 @@ export function createTavern(game, opts = {}) {
   let bramTalks = 0, patronTalks = 0, pokeTime = -9;
   const embers = [];
   const zzz = [];
-  const stats = { hp: 100, gold: 10, key: quest, level: 1, xp: 0 };
+  const player = game.player;
+  if (quest) player.key = true;
 
   const near = () => {
     for (const [id, z] of Object.entries(ZONES)) if (hero.x >= z.x0 && hero.x <= z.x1 && hero.onGround) return id;
@@ -243,7 +239,7 @@ export function createTavern(game, opts = {}) {
   function startPlay() {
     state = 'play';
     ui.showHud(true);
-    ui.setStats(stats);
+    game.syncHud();
     updateObjective();
   }
 
@@ -259,8 +255,8 @@ export function createTavern(game, opts = {}) {
         { name: 'Bram', text: "Here — my old cellar key. The door's at the far end, past the window. Mind the steps." },
       ], () => {
         quest = true;
-        stats.key = true;
-        ui.setStats(stats);
+        player.key = true;
+        game.syncHud();
         ui.banner('Quest accepted: Clear the Cellar');
         updateObjective();
       });
@@ -291,7 +287,7 @@ export function createTavern(game, opts = {}) {
       return;
     }
     ui.choice('Descend into the cellar?', [
-      { label: 'Descend', onPick: () => ui.fade(() => game.goto('cellar')) },
+      { label: 'Descend', onPick: () => ui.fade(() => game.goto('room')) },
       { label: 'Not yet' },
     ]);
   }
@@ -331,7 +327,7 @@ export function createTavern(game, opts = {}) {
     if (Math.random() < dt * 8) embers.push({ x: FIRE.x - 10 + Math.random() * 20, y: GROUND - 8, vy: -14 - Math.random() * 16, life: 1 });
     for (const e of embers) { e.y += e.vy * dt; e.x += Math.sin(time * 3 + e.y) * 0.15; e.life -= dt * 0.8; }
     while (embers.length && embers[0].life <= 0) embers.shift();
-    if (Math.random() < dt * 0.7) zzz.push({ x: 160, y: 114, life: 1 });
+    if (Math.random() < dt * 0.7) zzz.push({ x: 160, y: 118, life: 1 });
     for (const z of zzz) { z.y -= dt * 7; z.x += dt * 4; z.life -= dt * 0.45; }
     while (zzz.length && zzz[0].life <= 0) zzz.shift();
     cellarOpen += ((quest ? 1 : 0) - cellarOpen) * Math.min(1, dt * 3);
@@ -342,14 +338,14 @@ export function createTavern(game, opts = {}) {
     } else {
       if (state === 'intro') {
         doorOpen = Math.min(1, doorOpen + dt * 2);
-        if (doorOpen >= 1) hero.step(dt, 0.6, WORLD_W);
+        if (doorOpen >= 1) hero.step(dt, 0.6, world);
         if (hero.x >= 72) {
           state = 'narration';
           ui.say([{ text: "The Rusty Flagon. A crackling fire, cheap ale, and a barkeep who looks like he's been expecting you." }], startPlay);
         }
       } else {
         if (state === 'narration') doorOpen = Math.max(0, doorOpen - dt * 2);
-        hero.step(dt, ui.busy || state !== 'play' ? 0 : input.x, WORLD_W);
+        hero.step(dt, ui.busy || state !== 'play' ? 0 : input.x, world);
       }
       target = hero.x - W / 2;
     }
@@ -467,19 +463,21 @@ export function createTavern(game, opts = {}) {
     }
 
     // Bram behind the bar, polishing a mug.
-    const bramX = 310, bramY = 104 + (Math.sin(time * 2) > 0.95 ? -1 : 0);
-    ctx.drawImage(BARKEEP, bramX, bramY);
-    const polish = Math.round(Math.sin(time * 5) * 2);
+    const bramX = 306, bramY = 113 + (Math.sin(time * 2) > 0.95 ? -1 : 0);
+    ctx.drawImage(BRAM, bramX, bramY);
+    const polish = Math.round(Math.sin(time * 5) * 3);
     ctx.fillStyle = '#c9c9c9';
-    ctx.fillRect(bramX + 4 + polish, bramY + 9, 4, 5);
-    ctx.fillStyle = '#f2c29b';
-    ctx.fillRect(bramX + 3 + polish, bramY + 12, 6, 2);
+    ctx.fillRect(bramX + 7 + polish, bramY + 11, 6, 6);
+    ctx.fillStyle = '#f5e6b0';
+    ctx.fillRect(bramX + 7 + polish, bramY + 11, 6, 1);
+    ctx.fillStyle = '#f0c090';
+    ctx.fillRect(bramX + 5 + polish, bramY + 15, 10, 2);
 
     // Sleeping patron slumped at his table.
-    ctx.drawImage(PATRON, 150, 115);
+    ctx.drawImage(PATRON, 146, 122);
 
     ctx.drawImage(mid, 0, 0);
-    for (const t of CANDLES) flame(ctx, t.x, 120);
+    for (const t of CANDLES) flame(ctx, t.x, 129);
 
     if (state !== 'title') drawHero(ctx, hero, time);
 
@@ -492,10 +490,10 @@ export function createTavern(game, opts = {}) {
     const lights = [
       [FIRE.x, GROUND - 14, 82 + Math.sin(time * 7) * 4],
       ...LANTERNS.map((lx) => [lx, 40, 62 + Math.sin(time * 5 + lx) * 2]),
-      ...CANDLES.map((c) => [c.x, 118, 38 + Math.sin(time * 11 + c.x) * 2]),
+      ...CANDLES.map((c) => [c.x, 126, 38 + Math.sin(time * 11 + c.x) * 2]),
       [70, 68, 18], [116, 68, 18],
       [462, 64, 40],
-      [hero.x, hero.y - 9, 30],
+      [hero.x, hero.y - 15, 36],
     ];
     if (quest) lights.push([520, 124, 30 * cellarOpen + Math.sin(time * 3) * 2]);
     for (const [x, y, r] of lights) {
@@ -531,9 +529,9 @@ export function createTavern(game, opts = {}) {
     // Markers: quest "!" over Bram, "A" bubble over whatever you can use.
     if (state === 'play' || state === 'narration') {
       const n = state === 'play' && !ui.busy ? near() : null;
-      if (n === 'bram') bubble(ctx, 316, 86, 'A');
-      else if (!quest) bubble(ctx, 316, 86, '!');
-      if (n === 'patron') bubble(ctx, 156, 98, 'A');
+      if (n === 'bram') bubble(ctx, 316, 96, 'A');
+      else if (!quest) bubble(ctx, 316, 96, '!');
+      if (n === 'patron') bubble(ctx, 156, 104, 'A');
       if (n === 'cellar') bubble(ctx, 520, 78, 'A');
     }
     ctx.restore();
