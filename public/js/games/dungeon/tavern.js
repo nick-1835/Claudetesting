@@ -493,7 +493,7 @@ export function createTavern(game, opts = {}) {
       ...CANDLES.map((c) => [c.x, 126, 38 + Math.sin(time * 11 + c.x) * 2]),
       [70, 68, 18], [116, 68, 18],
       [462, 64, 40],
-      [hero.x, hero.y - 15, 36],
+      [hero.x, hero.y - 20, 40],
     ];
     if (quest) lights.push([520, 124, 30 * cellarOpen + Math.sin(time * 3) * 2]);
     for (const [x, y, r] of lights) {

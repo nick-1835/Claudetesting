@@ -131,7 +131,7 @@ export function createRoom(game) {
   const art = buildRoom();
   let light = null, lctx = null;
 
-  const hero = createHero(2.5 * T, 9 * T);
+  const hero = createHero(5 * T, 9 * T);
   hero.face = 'right';
   let time = 0;
   let camX = 0;
@@ -285,7 +285,7 @@ export function createRoom(game) {
     // Touching the hero hurts.
     if (!hero.dead && overlap(e, hero) && hero.hurt(e.x)) {
       player.hp = Math.max(0, player.hp - e.def.damage);
-      popup(hero.x, hero.y - 32, `-${e.def.damage}`, '#ff6b5e');
+      popup(hero.x, hero.y - 44, `-${e.def.damage}`, '#ff6b5e');
       shake = 0.25;
       game.syncHud();
       if (player.hp <= 0) die();
@@ -303,7 +303,7 @@ export function createRoom(game) {
       c.age += dt;
       moveBody(c, dt, world);
       if (c.onGround) c.vx *= 0.85;
-      if (c.age > 0.3 && Math.abs(c.x - hero.x) < 12 && c.y > hero.y - 32 && c.y < hero.y + 4 && !hero.dead) {
+      if (c.age > 0.3 && Math.abs(c.x - hero.x) < 12 && c.y > hero.y - 40 && c.y < hero.y + 4 && !hero.dead) {
         coins.splice(coins.indexOf(c), 1);
         player.gold += 1;
         popup(c.x, c.y - 8, '+1', '#ffe08a');
@@ -445,7 +445,7 @@ export function createRoom(game) {
     lctx.globalCompositeOperation = 'destination-out';
     const lights = [
       ...torches.map((t) => [t.x, t.y - 4, 62 + Math.sin(time * 9 + t.x) * 4]),
-      [hero.x, hero.y - 15, 70],
+      [hero.x, hero.y - 20, 74],
       [T * 1.5, 8 * T, 40],
     ];
     if (cleared) lights.push([door.x, door.y - T, 46]);

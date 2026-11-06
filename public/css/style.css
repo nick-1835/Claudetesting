@@ -631,4 +631,6 @@ body.immersive { background: #05030a; }
 .dq-pad.down { transform: translateY(3px) scale(0.95); box-shadow: 0 0 0 3px var(--ink), inset -2px -2px 0 rgba(0, 0, 0, 0.3); }
 .dq-pad.a.ready { animation: dq-ready 0.9s ease-in-out infinite; }
 @keyframes dq-ready { 50% { box-shadow: 0 0 0 3px var(--ink), 0 0 0 7px rgba(255, 224, 138, 0.7), 0 5px 0 2px rgba(0, 0, 0, 0.45); } }
-.dq-app.landscape .dq-stick, .dq-app.landscape .dq-pad { opacity: 0.85; }
+.dq-app.landscape .dq-stick { opacity: 0.6; }
+.dq-app.landscape .dq-stick.active { opacity: 0.85; }
+.dq-app.landscape .dq-pad { opacity: 0.85; }

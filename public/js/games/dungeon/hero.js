@@ -13,8 +13,8 @@ export function createHero(x, y) {
     y,
     vx: 0,
     vy: 0,
-    hw: 6,
-    hh: 27,
+    hw: 7,
+    hh: 35,
     face: 'right',
     walk: 0,
     moving: false,
@@ -60,7 +60,7 @@ export function createHero(x, y) {
       const s = hero.swing;
       if (s < 0.2 || s > 0.7) return null;
       const dir = hero.face === 'right' ? 1 : -1;
-      return { x: hero.x + dir * 17, y: hero.y - 2, hw: 17, hh: 30 };
+      return { x: hero.x + dir * 22, y: hero.y - 2, hw: 22, hh: 38 };
     },
     /** Take a hit from something at `fromX`. Returns false while still invulnerable. */
     hurt(fromX) {
@@ -93,7 +93,7 @@ function pixelLine(ctx, x0, y0, x1, y1) {
 function drawSword(ctx, hx, hy, angle, dirSign) {
   const a = dirSign > 0 ? angle : Math.PI - angle;
   const c = Math.cos(a), s = Math.sin(a);
-  const len = 19;
+  const len = 25;
   const bx = hx + c * 3, by = hy + s * 3;
   const tx = hx + c * len, ty = hy + s * len;
   // Blade: dark edge, steel, bright edge.
@@ -116,13 +116,18 @@ export function drawHero(ctx, hero, time) {
   if (hero.hurtT > 0 && Math.floor(hero.hurtT * 14) % 2 === 0 && !hero.dead) return; // blink
   const set = HERO[hero.face];
   let img = set.stand;
+  let bob = 0;
   if (!hero.onGround) img = set.jump;
-  else if (hero.moving && hero.knockT <= 0) img = set.walk[Math.floor(hero.walk) % 4];
+  else if (hero.moving && hero.knockT <= 0) {
+    const i = Math.floor(hero.walk) % 4;
+    img = set.walk[i];
+    bob = set.walkBob[i];
+  }
   const sx = Math.round(hero.x - HERO.w / 2);
   const sy = Math.round(hero.y - HERO.h);
   const dirSign = hero.face === 'right' ? 1 : -1;
   const hx = sx + (dirSign > 0 ? HERO.hand.x : HERO.w - 1 - HERO.hand.x) + 0.5;
-  const hy = sy + HERO.hand.y + 0.5;
+  const hy = sy + HERO.hand.y + bob + (img === set.jump ? -2 : 0) + 0.5;
 
   if (hero.dead) {
     ctx.save();
@@ -135,11 +140,11 @@ export function drawHero(ctx, hero, time) {
 
   // Sword angle: held low and forward at rest, or windup -> slash -> follow-through.
   const s = hero.swing;
-  let angle = 0.55;
+  let angle = 0.38;
   if (s >= 0) {
-    if (s < 0.2) angle = 0.55 - (s / 0.2) * 2.75;
+    if (s < 0.2) angle = 0.38 - (s / 0.2) * 2.6;
     else if (s < 0.55) angle = -2.2 + ((s - 0.2) / 0.35) * 3.1;
-    else angle = 0.9 - ((s - 0.55) / 0.45) * 0.35;
+    else angle = 0.9 - ((s - 0.55) / 0.45) * 0.52;
   }
   const behind = s >= 0 && s < 0.2;
   if (behind) drawSword(ctx, hx, hy, angle, dirSign);
@@ -152,14 +157,14 @@ export function drawHero(ctx, hero, time) {
     ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    if (dirSign > 0) ctx.arc(hx, hy, 18, -2.0, 0.8);
-    else ctx.arc(hx, hy, 18, Math.PI - 0.8, Math.PI + 2.0);
+    if (dirSign > 0) ctx.arc(hx, hy, 23, -2.0, 0.8);
+    else ctx.arc(hx, hy, 23, Math.PI - 0.8, Math.PI + 2.0);
     ctx.stroke();
     ctx.strokeStyle = `rgba(160, 210, 255, ${alpha * 0.5})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    if (dirSign > 0) ctx.arc(hx, hy, 14, -1.8, 0.7);
-    else ctx.arc(hx, hy, 14, Math.PI - 0.7, Math.PI + 1.8);
+    if (dirSign > 0) ctx.arc(hx, hy, 18, -1.8, 0.7);
+    else ctx.arc(hx, hy, 18, Math.PI - 0.7, Math.PI + 1.8);
     ctx.stroke();
   }
 }
