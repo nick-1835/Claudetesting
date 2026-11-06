@@ -13,7 +13,7 @@ export default {
   icon: '🏓',
   description: 'Classic paddle tennis against the computer. First to 7 wins.',
   scoreLabel: 'win margin',
-  help: 'Move with <kbd>W</kbd>/<kbd>S</kbd>, <kbd>↑</kbd>/<kbd>↓</kbd>, or drag on the court. <kbd>Space</kbd> pauses.',
+  help: '<span class="keys">Move with <kbd>W</kbd>/<kbd>S</kbd>, <kbd>↑</kbd>/<kbd>↓</kbd> or the mouse. <kbd>Space</kbd> pauses.</span><span class="touch">Drag up and down on the court to move.</span>',
 
   mount(root, api) {
     const { canvas, ctx } = createCanvas(W, H);
@@ -149,7 +149,8 @@ export default {
       }
     });
     const move = (e) => { pointerY = pointerPos(canvas, W, H, e).y; };
-    canvas.addEventListener('pointerdown', move);
+    const down = (e) => { canvas.setPointerCapture?.(e.pointerId); move(e); };
+    canvas.addEventListener('pointerdown', down);
     canvas.addEventListener('pointermove', move);
 
     const loop = createLoop(update, render);
@@ -160,7 +161,7 @@ export default {
     return () => {
       loop.stop();
       keys.dispose();
-      canvas.removeEventListener('pointerdown', move);
+      canvas.removeEventListener('pointerdown', down);
       canvas.removeEventListener('pointermove', move);
     };
   },

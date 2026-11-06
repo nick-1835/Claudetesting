@@ -17,7 +17,7 @@ export default {
   title: 'Brick Breaker',
   icon: '🧱',
   description: 'Bounce the ball off your paddle to smash every brick. Three lives per run.',
-  help: 'Move with <kbd>←</kbd>/<kbd>→</kbd>, <kbd>A</kbd>/<kbd>D</kbd>, or the mouse / touch. <kbd>Space</kbd> launches & pauses.',
+  help: '<span class="keys">Move with <kbd>←</kbd>/<kbd>→</kbd>, <kbd>A</kbd>/<kbd>D</kbd> or the mouse. <kbd>Space</kbd> launches & pauses.</span><span class="touch">Drag to move the paddle, tap to launch.</span>',
 
   mount(root, api) {
     const { canvas, ctx } = createCanvas(W, H);
@@ -173,7 +173,7 @@ export default {
       if (state === 'playing' && ball.stuck) {
         ctx.fillStyle = '#9a9cc4';
         ctx.font = '16px system-ui';
-        ctx.fillText('Press Space or tap to launch', W / 2, H - 80);
+        ctx.fillText(matchMedia('(pointer: coarse)').matches ? 'Tap to launch' : 'Press Space or click to launch', W / 2, H - 80);
       }
       if (state === 'paused') {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -191,7 +191,7 @@ export default {
       else if (state === 'paused') state = 'playing';
     });
     const move = (e) => { pointerX = pointerPos(canvas, W, H, e).x; };
-    const tap = (e) => { move(e); if (state === 'playing') launch(); };
+    const tap = (e) => { canvas.setPointerCapture?.(e.pointerId); move(e); if (state === 'playing') launch(); };
     canvas.addEventListener('pointermove', move);
     canvas.addEventListener('pointerdown', tap);
 

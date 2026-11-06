@@ -41,11 +41,13 @@ function renderLobby() {
     );
   }
   app.replaceChildren(
-    el('section', { class: 'hero' },
-      el('h1', {}, 'Pick a game'),
-      el('p', {}, 'Quick, classic-style games that run right in your browser. No downloads, no sign-up.'),
+    el('div', { class: 'lobby' },
+      el('section', { class: 'hero' },
+        el('h1', {}, 'Pick a game'),
+        el('p', {}, 'Quick, classic-style games that run right in your browser. High scores are saved on this device.'),
+      ),
+      grid,
     ),
-    grid,
   );
 }
 
@@ -68,9 +70,11 @@ function renderGame(game) {
   const help = el('p', { class: 'help', html: game.help || '' });
 
   app.replaceChildren(
-    el('div', { class: 'game-header' }, el('h1', {}, `${game.icon} ${game.title}`), stats),
-    stage,
-    help,
+    el('div', { class: 'game-page' },
+      el('div', { class: 'game-header' }, el('h1', {}, `${game.icon} ${game.title}`), stats),
+      stage,
+      help,
+    ),
   );
 
   // The API each game receives.
@@ -101,8 +105,33 @@ function renderGame(game) {
   };
 
   const gameRoot = el('div');
-  stage.append(el('div', { class: 'frame' }, gameRoot, overlay));
-  cleanup = game.mount(gameRoot, api) || null;
+  const frame = el('div', { class: 'frame' }, gameRoot, overlay);
+  stage.append(frame);
+  const unmount = game.mount(gameRoot, api);
+
+  // Scale canvas games to the largest size that fits the screen (no scrolling).
+  const canvas = gameRoot.querySelector('canvas.game');
+  let observer = null;
+  if (canvas) {
+    const w = +canvas.dataset.w, h = +canvas.dataset.h;
+    const fit = () => {
+      const border = 4;
+      const scale = Math.min((stage.clientWidth - border) / w, (stage.clientHeight - border) / h, 1.6);
+      if (scale <= 0) return;
+      canvas.style.width = `${Math.floor(w * scale)}px`;
+      canvas.style.height = `${Math.floor(h * scale)}px`;
+    };
+    observer = new ResizeObserver(fit);
+    observer.observe(stage);
+    fit();
+  } else {
+    frame.classList.add('dom');
+  }
+
+  cleanup = () => {
+    if (observer) observer.disconnect();
+    if (unmount) unmount();
+  };
 }
 
 function route() {
@@ -111,8 +140,20 @@ function route() {
   const game = match && GAMES.find((g) => g.id === match[1]);
   if (game) renderGame(game);
   else renderLobby();
-  window.scrollTo(0, 0);
 }
+
+// App-like feel: block pinch-zoom, double-tap zoom and page dragging.
+// Only elements marked .lobby may scroll (and only if the screen is too small).
+const noDefault = (e) => e.preventDefault();
+document.addEventListener('gesturestart', noDefault);
+document.addEventListener('gesturechange', noDefault);
+document.addEventListener('dblclick', noDefault);
+document.addEventListener('touchmove', (e) => {
+  if (e.touches.length > 1 || !e.target.closest('.lobby')) e.preventDefault();
+}, { passive: false });
+document.addEventListener('contextmenu', (e) => {
+  if (e.target.closest('.game-page')) e.preventDefault();
+});
 
 window.addEventListener('hashchange', route);
 route();

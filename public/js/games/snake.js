@@ -22,7 +22,7 @@ export default {
   title: 'Snake',
   icon: '🐍',
   description: 'Eat the food, grow longer, and don\'t bite yourself or the walls.',
-  help: 'Move with <kbd>Arrow keys</kbd> / <kbd>WASD</kbd> or swipe. <kbd>Space</kbd> pauses.',
+  help: '<span class="keys">Move with <kbd>Arrow keys</kbd> / <kbd>WASD</kbd>. <kbd>Space</kbd> pauses.</span><span class="touch">Swipe anywhere to steer.</span>',
 
   mount(root, api) {
     const { canvas, ctx, width, height } = createCanvas(COLS * CELL, ROWS * CELL);
@@ -148,7 +148,7 @@ export default {
         else if (state === 'paused') state = 'playing';
       }
     });
-    const unswipe = onSwipe(canvas, turn);
+    const unswipe = onSwipe(root.closest('.game-page') || canvas, turn);
 
     const loop = createLoop(update, render);
     reset();

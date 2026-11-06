@@ -6,7 +6,8 @@ export function createCanvas(width, height) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = width * dpr;
   canvas.height = height * dpr;
-  canvas.style.width = `${width}px`;
+  canvas.dataset.w = width; // logical size; the app scales it to fit the screen
+  canvas.dataset.h = height;
   canvas.className = 'game';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
@@ -100,7 +101,9 @@ export function onSwipe(el, onSwipeDir) {
   };
   el.addEventListener('pointerdown', start);
   el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
   return () => {
+    el.removeEventListener('pointercancel', end);
     el.removeEventListener('pointerdown', start);
     el.removeEventListener('pointerup', end);
   };
