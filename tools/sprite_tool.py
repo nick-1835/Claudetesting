@@ -45,6 +45,14 @@ PAL = {
     'N': '#7a5230', 'Q': '#553820', 'K': '#3a2614',
     # beard
     'D': '#8a5a2b', 'C': '#5e3c1c',
+    # shirt (cream)
+    'J': '#f0e8d6', 'I': '#cfc3a8', 'U': '#9a8e76',
+    # vest (brown)
+    'Y': '#7a4826', 'Z': '#53301a', '1': '#2e180c',
+    # grey hair
+    '2': '#a0968e', '3': '#6e6660',
+    # eye white
+    '5': '#f4f0e8',
 }
 
 # Material ramps: (highlight, base, shade, deep)
@@ -63,6 +71,9 @@ RAMP = {
     'cloth': ('N', 'N', 'Q', 'K'),
     'beard': ('D', 'D', 'C', 'C'),
     'gold': ('g', 'g', 'G', 'G'),
+    'shirt': ('J', 'J', 'I', 'U'),
+    'vest': ('Y', 'Y', 'Z', '1'),
+    'grey': ('2', '2', '3', '3'),
 }
 
 
@@ -285,8 +296,9 @@ def hero_frame(pose):
     sp.part(hair, 'hair', lambda x, y: 0 if y < Y(3.5) and x > 19 else 1)
     sp.set(20, Y(8), 'S')    # ear
     sp.set(19, Y(8), 'q')
-    sp.set(24, Y(6), 'e')    # eye
-    sp.set(24, Y(5), 'j'); sp.set(25, Y(5), 'j')  # brow
+    sp.set(23, Y(6), 'e')    # eye
+    sp.set(24, Y(6), '5')
+    sp.set(23, Y(5), 'j'); sp.set(24, Y(5), 'j')  # brow
     sp.set(26, Y(9), 'S')    # under the nose
     sp.set(25, Y(10), 'q')   # mouth
     # 8. near arm reaches forward and holds the shield out in front
@@ -298,21 +310,34 @@ def hero_frame(pose):
     sp.part(paul, 'steel', side_shade(paul, 0.35, 0.25))
     for x in range(23, 28):
         sp.set(x, Y(17), 'M')  # layered plate line
-    # 9. heater shield: steel rim, red field, gold chevron
-    sx, sy = pose.get('shield', (31, 16))
+    # 9. tall rounded shield (left hand, in front): thick silver rim, red face, light bevel band
+    sx, sy = pose.get('shield', (30.5, 23))
     sy = Y(sy)
-    shield = poly([(sx - 4.2, sy), (sx + 4.2, sy), (sx + 4.5, sy + 6), (sx + 3, sy + 10.5), (sx, sy + 14),
-                   (sx - 3, sy + 10.5), (sx - 4.5, sy + 6)])
-    sp.part(shield, 'shield', lambda x, y: 0 if x >= sx + 1 else (2 if x < sx - 1 else 1))
+    rx, ry = 5.2, 8.6
+    shield = set()
+    for y in range(int(sy - ry) - 1, int(sy + ry) + 2):
+        for x in range(int(sx - rx) - 1, int(sx + rx) + 2):
+            nx, ny = (x + 0.5 - sx) / rx, (y + 0.5 - sy) / ry
+            if abs(nx) ** 2.6 + abs(ny) ** 2.2 <= 1:
+                shield.add((x, y))
+    sp.part(shield, 'steel', lambda x, y: 0 if (x > sx + 1 or y < sy - ry + 3) else (2 if x < sx - 2 else 1))
     for (x, y) in shield:
-        edge = any((x + dx, y + dy) not in shield for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
-        rim = not edge and any((x + dx, y + dy) not in shield for dx, dy in ((2, 0), (-2, 0), (0, -2), (0, 2)))
-        if rim:
-            sp.set(x, y, 'w' if (x > sx or y == sy + 1) else 'M')
-    cx = int(sx)
-    for i in range(4):
-        sp.set(cx - i, sy + 4 + i, 'g'); sp.set(cx + i, sy + 4 + i, 'g')
-        sp.set(cx - i, sy + 5 + i, 'G'); sp.set(cx + i, sy + 5 + i, 'G')
+        nx, ny = (x + 0.5 - sx) / (rx - 1.8), (y + 0.5 - sy) / (ry - 1.8)
+        if abs(nx) ** 2.6 + abs(ny) ** 2.2 <= 1:
+            d = (x + 0.5 - sx) - (y + 0.5 - sy) * 0.35  # diagonal band across the face
+            if 0.4 < d < 2.0:
+                ch = 'y'
+            elif x < sx - 1.5 or y > sy + ry - 4:
+                ch = 'X'
+            else:
+                ch = 'x'
+            sp.set(x, y, ch)
+    # inner edge of the rim catches a dark line so the face reads as recessed
+    face = {(x, y) for (x, y) in shield if sp.g[y][x] in 'yxX'}
+    for (x, y) in face:
+        if any((x + dx, y + dy) not in face for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+            if y < sy - 1 or x < sx:
+                sp.set(x, y, 'z')
     return sp.rows(), (hx, hy)
 
 
@@ -322,7 +347,7 @@ HERO_POSES = {
     'walk2': {'back': ((19, 37), (17, 41), True), 'front': ((22, 38), (22, 43)), 'bob': 1},
     'walk3': {'back': ((24, 37), (26, 43)), 'front': ((17, 37), (14, 43))},
     'walk4': {'back': ((19, 38), (19, 43)), 'front': ((24, 37), (22, 41), True), 'bob': 1},
-    'jump': {'back': ((15, 35), (14, 39), True), 'front': ((27, 34), (25, 39), True), 'hand': (12, 24), 'shield': (31, 14)},
+    'jump': {'back': ((15, 35), (14, 39), True), 'front': ((27, 34), (25, 39), True), 'hand': (12, 24), 'shield': (30.5, 21)},
     'attack': {'back': ((14, 37), (11, 43)), 'front': ((27, 37), (28, 43)), 'no_sword_arm': True},
 }
 
@@ -330,27 +355,63 @@ HERO_POSES = {
 # ---------- Bram (upper body behind the bar, facing right; flipped in game) ----------
 
 def bram():
-    sp = Sprite(30, 30)
-    torso = poly([(8, 12), (21, 12), (25.5, 14), (27.5, 18), (28, 30), (2, 30), (2.5, 18), (4.5, 14)])
-    sp.part(torso, 'scarf', side_shade(torso))
-    apron = poly([(8, 15), (22, 15), (23, 30), (7, 30)])
-    sp.part(apron, 'apron', side_shade(apron))
-    for x in range(8, 23):
-        sp.set(x, 15, 'E')
-    sp.part(limb((22, 9), (22, 13), 2.4), 'skin', lambda x, y: 2)
-    head = poly([(9, 4), (12, 1), (18, 0.5), (22, 2), (24, 5), (24.5, 8), (23.5, 11), (21, 13), (13, 13), (10, 11), (9, 8)])
-    sp.part(head, 'skin', lambda x, y: 0 if x > 20 and y < 6 else (2 if x < 12 else 1))
-    beard = poly([(13, 9), (24, 9), (23.5, 12), (21, 14.5), (16, 14.5), (13, 12)])
-    sp.part(beard, 'beard', side_shade(beard))
-    sp.set(20, 6, 'e'); sp.set(16, 6, 'e')
-    sp.set(19, 5, 'C'); sp.set(20, 5, 'C'); sp.set(16, 5, 'C'); sp.set(15, 5, 'C')
-    sp.set(18, 8, 'S'); sp.set(18, 7, 'S')
-    sp.set(10, 7, 'S'); sp.set(10, 8, 'q')  # ear
-    # arms forward, hands together in front (holding the mug drawn by the game)
-    sp.part(limb((5, 15), (9, 23), 2.6, 2.2), 'scarf', lambda x, y: 2)
-    sp.part(limb((25, 15), (21, 23), 2.6, 2.2), 'scarf', lambda x, y: 0 if x > 23 else 1)
-    sp.part(ellipse(11, 24, 2.2, 2.0), 'skin', lambda x, y: 1)
-    sp.part(ellipse(19, 24, 2.2, 2.0), 'skin', lambda x, y: 1)
+    """Upper body (he stands behind the bar), facing the viewer."""
+    sp = Sprite(34, 34)
+    # torso: sloped shoulders and a bit of a belly
+    torso = poly([(12, 15), (22, 15), (27, 17), (29, 21), (28, 34), (6, 34), (5, 21), (7, 17)])
+    sp.part(torso, 'shirt', side_shade(torso, 0.2, 0.25))
+    # vest: two panels with a V opening, gold buttons
+    left = poly([(7, 17), (13, 15.5), (16, 25), (16, 34), (6, 34), (5.5, 21)])
+    right = poly([(21, 15.5), (27, 17), (28.5, 21), (28, 34), (18, 34), (18, 25)])
+    sp.part(left, 'vest', lambda x, y: 2 if x < 9 else 1)
+    sp.part(right, 'vest', lambda x, y: 0 if x > 25 else 1)
+    for y in (24, 27, 30):
+        sp.set(15, y, 'g')
+    # apron string tied at the waist
+    for x in range(6, 29):
+        sp.set(x, 31, 'A' if x % 5 else 'E')
+    # arms: upper arms down his sides, forearms (sleeves rolled up) bent in to the hands at the counter
+    for side in (-1, 1):
+        sh = (17 + side * 10.5, 18)
+        el = (17 + side * 12.5, 24)
+        hand = (17 + side * 4.5, 26)
+        sp.part(limb(sh, el, 2.6, 2.4), 'shirt', lambda x, y, s=side: 0 if s > 0 else 2)
+        sp.part(limb(el, hand, 2.2, 1.9), 'skin', lambda x, y, s=side: 1 if s > 0 else 2)
+        sp.part(ellipse(el[0], el[1] - 0.5, 2.7, 1.7), 'shirt', lambda x, y: 1)  # rolled cuff
+        sp.part(ellipse(hand[0], hand[1], 2.0, 1.8), 'skin', lambda x, y: 1)
+    # towel over his left shoulder (our right), with red check stripes
+    towel = poly([(22, 14.5), (26.5, 15.5), (27.5, 24), (24.5, 25), (23.5, 18)])
+    sp.part(towel, 'apron', lambda x, y: 0)
+    for (x, y) in towel:
+        if y in (19, 22) and sp.g[y][x] not in 'kE':
+            sp.set(x, y, 'r')
+    # neck and head
+    sp.part(limb((17, 12), (17, 15), 3.0), 'skin', lambda x, y: 2)
+    head = poly([(12.5, 4), (14.5, 1.5), (19.5, 1.5), (21.5, 4), (22.2, 8), (21.5, 12), (19, 15), (15, 15),
+                 (12.5, 12), (11.8, 8)])
+    sp.part(head, 'skin', lambda x, y: 0 if (x > 17 and y < 5) else (2 if x < 14 else 1))
+    # ears
+    sp.part(ellipse(11.4, 8.5, 1.3, 1.8), 'skin', lambda x, y: 2)
+    sp.part(ellipse(22.6, 8.5, 1.3, 1.8), 'skin', lambda x, y: 1)
+    # grey fringe on the sides (bald on top)
+    for (x, y) in head:
+        if y >= 4 and y <= 8 and (x <= 12 or x >= 22):
+            sp.set(x, y, '2' if x >= 22 else '3')
+    # brows, eyes, nose
+    for x in (13, 14, 15):
+        sp.set(x, 6, '3')
+    for x in (19, 20, 21):
+        sp.set(x, 6, '3')
+    sp.set(14, 7, '5'); sp.set(15, 7, 'e')
+    sp.set(19, 7, 'e'); sp.set(20, 7, '5')
+    sp.set(17, 7, 'S'); sp.set(17, 8, 'S'); sp.set(16, 9, 'S'); sp.set(17, 9, 's'); sp.set(18, 9, 'q')
+    sp.set(13, 9, 'S'); sp.set(21, 9, 'S')  # cheeks
+    # big mustache and a short beard
+    beard = poly([(12.5, 11), (21.5, 11), (21.8, 13), (20, 16.5), (17, 17.5), (14, 16.5), (12.2, 13)])
+    sp.part(beard, 'beard', lambda x, y: 0 if (x > 17 and y < 13) else (2 if x < 15 or y > 15 else 1))
+    stache = poly([(11.5, 10.6), (16.5, 9.8), (17, 10.4), (17.5, 9.8), (22.5, 10.6), (21, 12.2), (17, 11.6), (13, 12.2)])
+    sp.part(stache, 'beard', lambda x, y: 0 if x > 17 else 1)
+    sp.set(16, 13, 'q'); sp.set(17, 13, 'q'); sp.set(18, 13, 'q')  # mouth
     return sp.rows()
 
 

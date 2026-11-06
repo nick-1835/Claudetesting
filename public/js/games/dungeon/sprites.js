@@ -60,8 +60,8 @@ export const HERO = {
   left: heroSet(true),
 };
 
-// Bram faces left, toward customers coming in the front door.
-export const BRAM = bake(BRAM_ROWS, ART_PALETTE, true);
+// Bram faces the room from behind the bar.
+export const BRAM = bake(BRAM_ROWS, ART_PALETTE);
 export const PATRON = bake(PATRON_ROWS, ART_PALETTE);
 
 // ---------- Enemies ----------

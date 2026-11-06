@@ -8,7 +8,7 @@ const H = 180;
 export const GROUND = 150; // y of the floor surface
 
 const ZONES = {
-  bram: { x0: 286, x1: 346 },
+  bram: { x0: 262, x1: 322 }, // stand beside Bram, not in front of him
   patron: { x0: 138, x1: 202 },
   cellar: { x0: 496, x1: WORLD_W },
 };
@@ -173,7 +173,7 @@ function buildMid() {
     px('#46280f', x + 4, TOP + 7, 1, GROUND - TOP - 10);
     px('#6a4020', x + 17, TOP + 7, 1, GROUND - TOP - 10);
   }
-  for (const mx of [240, 352, 392]) { // mugs on the counter
+  for (const mx of [240, 296, 392]) { // mugs on the counter
     px('#c9c9c9', mx, TOP - 6, 5, 6);
     px('#9a9a9a', mx + 5, TOP - 5, 1, 4);
     px('#f5e6b0', mx, TOP - 6, 5, 1);
@@ -394,8 +394,8 @@ export function createTavern(game, opts = {}) {
     ctx.fillRect(x - 5, y, 11, 9);
     ctx.fillRect(x, y + 9, 1, 2);
     ctx.fillStyle = '#c0392b';
-    const A = ['####.', '#...#', '####.', '#...#', '####.']; // "B" = use
-    A.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 2 + rx, y + 2 + ry, 1, 1); }));
+    const A = ['###.', '#..#', '###.', '#..#', '###.']; // "B" = use
+    A.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 1 + rx, y + 2 + ry, 1, 1); }));
   }
 
   function render(ctx, view) {
@@ -459,15 +459,20 @@ export function createTavern(game, opts = {}) {
     }
 
     // Bram behind the bar, polishing a mug.
-    const bramX = 302, bramY = 102 + (Math.sin(time * 2) > 0.95 ? -1 : 0);
+    const bramX = 334, bramY = 102 + (Math.sin(time * 2) > 0.95 ? -1 : 0);
     ctx.drawImage(BRAM, bramX, bramY);
-    const polish = Math.round(Math.sin(time * 5) * 3);
+    // He polishes a mug, sliding it between his hands.
+    const polish = Math.round(Math.sin(time * 4) * 3);
     ctx.fillStyle = '#140c18';
-    ctx.fillRect(bramX + 11 + polish, bramY + 19, 8, 8);
+    ctx.fillRect(bramX + 13 + polish, bramY + 20, 8, 9);
+    ctx.fillRect(bramX + 21 + polish, bramY + 22, 2, 5);
     ctx.fillStyle = '#c9c9c9';
-    ctx.fillRect(bramX + 12 + polish, bramY + 20, 6, 6);
+    ctx.fillRect(bramX + 14 + polish, bramY + 21, 6, 7);
+    ctx.fillStyle = '#8a8a8a';
+    ctx.fillRect(bramX + 14 + polish, bramY + 21, 1, 7);
+    ctx.fillRect(bramX + 21 + polish, bramY + 23, 1, 3);
     ctx.fillStyle = '#f5e6b0';
-    ctx.fillRect(bramX + 12 + polish, bramY + 20, 6, 1);
+    ctx.fillRect(bramX + 14 + polish, bramY + 21, 6, 1);
 
     // Sleeping patron slumped at his table.
     ctx.drawImage(PATRON, 142, 117);
@@ -525,8 +530,8 @@ export function createTavern(game, opts = {}) {
     // Markers: quest "!" over Bram, "A" bubble over whatever you can use.
     if (state === 'play' || state === 'narration') {
       const n = state === 'play' && !ui.busy ? near() : null;
-      if (n === 'bram') bubble(ctx, 317, 86, 'A');
-      else if (!quest) bubble(ctx, 317, 86, '!');
+      if (n === 'bram') bubble(ctx, 351, 86, 'A');
+      else if (!quest) bubble(ctx, 351, 86, '!');
       if (n === 'patron') bubble(ctx, 158, 98, 'A');
       if (n === 'cellar') bubble(ctx, 520, 74, 'A');
     }

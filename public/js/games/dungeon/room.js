@@ -383,8 +383,8 @@ export function createRoom(game) {
     ctx.fillStyle = '#f3e6c8';
     ctx.fillRect(x - 5, y, 11, 9);
     ctx.fillStyle = '#c0392b';
-    ['####.', '#...#', '####.', '#...#', '####.'].forEach((row, ry) =>
-      [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 2 + rx, y + 2 + ry, 1, 1); }));
+    ['###.', '#..#', '###.', '#..#', '###.'].forEach((row, ry) =>
+      [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x - 1 + rx, y + 2 + ry, 1, 1); }));
   }
 
   function render(ctx, view) {
